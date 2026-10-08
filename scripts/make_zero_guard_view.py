@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Create TRUST_DEMO_SV_ZG: the demo semantic view with ONE change, a zero-guard on conversion_rate
-(bookings / NULLIF(session_count, 0)). DEV only, CREATE OR REPLACE. mission-os #1377.
+(bookings / NULLIF(session_count, 0)). DEV only, CREATE ... IF NOT EXISTS: sf.run refuses OR REPLACE as
+destructive, so a stale TRUST_DEMO_SV_ZG must be dropped by Simon before a rebuild. mission-os #1377.
     python scripts/make_zero_guard_view.py [--print]"""
 from __future__ import annotations
 import sys
@@ -18,8 +19,7 @@ def guarded(ddl: str, loc: str) -> str:
     head = f"{loc}.TRUST_DEMO_SV\n"
     if ddl.count(head) != 1:
         raise ValueError("expected exactly one view name line, found %d" % ddl.count(head))
-    out = ddl.replace(head, f"{loc}.TRUST_DEMO_SV_ZG\n", 1).replace(OLD, NEW, 1)
-    return out.replace("CREATE SEMANTIC VIEW IF NOT EXISTS", "CREATE OR REPLACE SEMANTIC VIEW", 1)
+    return ddl.replace(head, f"{loc}.TRUST_DEMO_SV_ZG\n", 1).replace(OLD, NEW, 1)
 
 
 def main() -> int:
