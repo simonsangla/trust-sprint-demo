@@ -1,0 +1,41 @@
+q,run,http,kind,value,text,request_id
+Q04,1,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,fd608a4b-be69-45d2-afe0-7a512d565acd
+Q04,2,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,99feaf89-1686-4e2c-afff-f4e1f019dc05
+Q04,3,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,19a5fe63-eaa1-4173-bec6-253529a18d37
+Q04,4,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,217598fd-98c1-42c6-98fd-e8df3c343ff8
+Q04,5,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,d21206eb-d514-4ca9-9db9-4d80d4ac0aa6
+Q04,6,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,3c7343e1-8f25-4ae1-9702-d4cda8ccc34a
+Q04,7,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,5daec14e-ff9e-4412-99a1-92d0f07c1437
+Q04,8,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,848cecfe-3a22-455a-a69c-ea417b1e69e7
+Q04,9,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,fbcf91e8-24e9-42d1-abeb-70cb231afb86
+Q04,10,200,sql,"(Decimal('0.080919'),)",This is our interpretation of your question: What was the booking conversion rate in June 2026?,e6989a60-a630-4c7f-bea5-f33eefbe0c07
+Q06,1,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,1179a482-8564-4b76-85e3-90e0d8e8ebc6
+Q06,2,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,a7ec749d-f4e6-40a9-b521-b7884b28d640
+Q06,3,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,e36517aa-6272-4178-afc4-388826e862bd
+Q06,4,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,ad6a16c2-0056-4de8-bac1-bcc9ccb289fa
+Q06,5,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,d5f31fd6-90e9-4058-8543-23cb51383fcf
+Q06,6,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,69c10473-686a-4c1c-a3af-d89b7f035d8e
+Q06,7,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,6c5a31fb-5e48-4c0b-9179-d6f80e2c4a4d
+Q06,8,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,20b2221d-086f-440f-9e51-a95afc2330ca
+Q06,9,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,36131952-8497-4adc-a443-ce8375fce39e
+Q06,10,200,sql,"(None,)",This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026?,4cd85691-fd13-4148-a63c-9ce66610b43f
+Q09,1,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,9f07f8ce-5b73-4477-a5e4-3996b349d5cd
+Q09,2,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,6153863d-b575-407c-b770-3a5c5d5d9242
+Q09,3,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,58be6671-132a-42eb-955b-7e7759f7d22a
+Q09,4,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,b897e016-7290-4a04-aadb-f4e059377e15
+Q09,5,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,3481b182-fa4c-419c-a772-924132cdfb7b
+Q09,6,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,b0bba5e2-f229-4396-8e31-388501c51a7c
+Q09,7,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,7f604ff7-d0e7-4073-879a-5e985d408828
+Q09,8,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,2eb64ca4-c75d-4450-89bf-1e2bf72bde05
+Q09,9,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,b1769c00-1a95-4b52-a5a9-ccdfebe2a2ca
+Q09,10,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,9630984b-21ec-4557-af14-2151bf9eed82
+Q10,1,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,c0e4ee5c-962f-462e-990b-9eab47fb8250
+Q10,2,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,a542f297-e21e-474f-a63a-848a6f379f1f
+Q10,3,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,e74ba39c-e5ec-4dcc-a440-76e8b8bfe03b
+Q10,4,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,c9bea775-517d-4a62-a1be-0c83e7017223
+Q10,5,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,87d45ceb-2dfc-4520-81f5-4a576149f6c4
+Q10,6,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,5565b744-5afc-494d-8521-0e1deb7063cd
+Q10,7,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,83f71bbc-a836-4068-b552-1512507675af
+Q10,8,200,sql,"(300, 140, 160, Decimal('0.466667'))","This is our interpretation of your question: What is our customer churn rate? Since there is no explicit churn event table, I will approxima",3d5d4d94-15fd-4361-9774-809a44c8489e
+Q10,9,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,c47fbe42-e466-4a4b-bda5-c256168386ef
+Q10,10,200,sql,"(300, 140, 160, Decimal('0.466667'))","This is our interpretation of your question: What is our customer churn rate? Since there is no explicit churn event table, I will approxima",cea579dc-af83-46cb-b519-eaa60a0f57d0

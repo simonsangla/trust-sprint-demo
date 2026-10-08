@@ -1,0 +1,21 @@
+q,run,http,kind,value,text,request_id
+Q09,1,200,sql,"(160,)",This is our interpretation of your question: How many paying customers (users with at least one confirmed booking) do we have over the entir,38ea40f5-13b6-4b71-af9e-3950061fff0a
+Q09,2,200,sql,"(160,)",This is our interpretation of your question: How many paying customers (users with at least one confirmed booking) do we have over the entir,eeb38ea4-29ac-40de-865f-0121a5a26638
+Q09,3,200,sql,"(160,)",This is our interpretation of your question: How many paying customers do we have? Paying customers are defined as users who have at least o,254fa920-761a-4cb3-9f6e-03e8b56aa1ff
+Q09,4,200,sql,"(160,)",This is our interpretation of your question: How many paying customers do we have? Paying customers are defined as users who have at least o,e02921bc-7027-470d-bcb1-c97120b2cb19
+Q09,5,200,sql,"(160,)",This is our interpretation of your question: How many paying customers do we have? Paying customers are defined as users who have at least o,a2a92dc6-7da2-4667-b285-bb0e9a51f5f4
+Q09,6,200,sql,"(160,)",This is our interpretation of your question: How many paying customers (users with at least one confirmed booking) do we have over the entir,84c58337-3885-4905-a818-92d02d2c163e
+Q09,7,200,sql,"(160,)",This is our interpretation of your question: How many paying customers do we have? Paying customers are defined as users who have at least o,25a13d70-3ab3-44b2-af96-6f443597521a
+Q09,8,200,sql,"(160,)",This is our interpretation of your question: How many paying customers (users with at least one confirmed booking) do we have over the entir,775f521d-f435-4b82-a9f8-cbea2173fc74
+Q09,9,200,sql,"(131,)",This is our interpretation of your question: How many paying customers do we have? Paying customers are defined as users who have at least o,31f4ae54-9ebf-4eb2-b783-acc6117adc62
+Q09,10,200,sql,"(131,)",This is our interpretation of your question: How many paying customers do we have? Paying customers are defined as users who have at least o,ef3ccec1-84a0-4bdc-b60e-abb5abc58d7b
+Q10,1,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,8c23c0d5-ed4b-4c23-9d09-9f83308e3608
+Q10,2,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,ae03cadd-b0f1-4d70-a804-e4b8bb5466c2
+Q10,3,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,df51a9fe-f4ca-41b4-8131-51046b0adff3
+Q10,4,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,01dccdd5-fbbd-4e19-883d-ba7dec0df873
+Q10,5,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,c027ede4-1eaf-4b1f-99b6-b0bf857a6dea
+Q10,6,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,1da73c55-5f02-401d-8e8d-9eaee84a3afa
+Q10,7,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,9dbe17e9-0f66-4519-9ba6-f9f37cf4d257
+Q10,8,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,20bdc413-1149-4783-87ea-acc0e081c32c
+Q10,9,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,2c704e79-250d-4b9d-8df3-4e274894369e
+Q10,10,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Since the data model does not have explicit churn events or su,c60c15cd-7e44-498a-a4b9-e1042c556bd4
