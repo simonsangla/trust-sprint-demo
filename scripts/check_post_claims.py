@@ -10,12 +10,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from refusal_outcome import REFUSE, outcome, gave_number  # noqa: E402
 
 CSV = Path(__file__).resolve().parent.parent / "evidence" / "refusal_runs_2026-10-08" / "batch20.csv"
-EXPECT = {"n": 20, "e0_nonum": 20, "e1_top": "46.7", "e2_said": 20, "e2_num": 11, "single_sha": True, "control_ok": 20}
+EXPECT = {"n": 20, "e1_top_n": 20, "e0_nonum": 20, "e1_top": "46.7", "e2_said": 20, "e2_num": 11, "single_sha": True, "control_ok": 20}
 POST = """One verified query about paying customers was enough for Cortex Analyst to make up a churn definition and answer a churn rate of {e1_top}%.
-Churn was never defined. Fictional data, my own demo, {n} runs per edit.
-Before that query: no number in {e0_nonum} of {n}.
-After I told it not to approximate: the answer said churn cannot be computed in {e2_said} of {n}, and the SQL under it still computed a number in {e2_num}.
-The sentence says no. The table under it is what ends up in a slide.
+Churn was never defined. Fictional data, my own demo, {n} runs per edit, 8 Oct 2026.
+Before that query: no number in {e0_nonum} of {n}. After it: {e1_top}% in {e1_top_n} of {n}.
+Then I added an instruction to the semantic view not to approximate. The answer said churn cannot be computed in {e2_said} of {n}, and the SQL under it still computed a number in {e2_num} of {n}.
+In the playground, the result table of that SQL shows up right under the refusal.
 So for every question an assistant should decline, I test what the answer says and what the SQL computes, on every semantic view edit.
 That is the AI Analytics Trust Sprint: 5 days, fixed scope, from EUR 4,500.
 #Snowflake #CortexAnalyst #AnalyticsEngineering"""
@@ -29,7 +29,7 @@ def compute(rows):
     ns = {len(churn(e)) for e in ("E0", "E1", "E2", "E3")}
     return {"n": ns.pop() if len(ns) == 1 else -1,
             "e0_nonum": sum(not gave_number(outcome(r)) for r in e0),
-            "e1_top": "%.1f" % (100 * float(top)),
+            "e1_top": "%.1f" % (100 * float(top)), "e1_top_n": Counter(vals).most_common(1)[0][1] if vals else 0,
             "e2_said": sum(bool(REFUSE.search(r["text"])) for r in e2),
             "e2_num": sum(gave_number(outcome(r)) for r in e2),
             "single_sha": len({r["script_sha"] for r in rows}) == 1,
