@@ -30,7 +30,8 @@ a{color:var(--ink);text-underline-offset:3px}:focus-visible{outline:2px solid va
 h1,h2{font-weight:500;letter-spacing:-.02em;line-height:1.15;margin:0;text-wrap:balance}
 h1{font-size:clamp(1.9rem,5vw,2.75rem)}h2{font-size:clamp(1.35rem,3vw,1.75rem)}
 p{margin:0}.lede{color:var(--muted);max-width:62ch}
-.ledger{font:400 clamp(1.6rem,5.5vw,2.6rem)/1.25 var(--mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:0}
+.recap{display:grid;gap:8px;border-left:2px solid var(--hair);padding-left:16px}
+.ledger{font:400 clamp(1.15rem,3.6vw,1.55rem)/1.4 var(--mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:0}
 .ledger .g{color:var(--green)}.ledger .b{color:var(--brick)}.ledger small{font-size:.42em;color:var(--muted);letter-spacing:.02em;margin-left:.6em}
 .tag{justify-self:start;font:500 .66rem var(--mono);letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--hair);background:var(--tint);color:var(--muted);padding:4px 10px;border-radius:4px}
 .stats{display:flex;flex-wrap:wrap;gap:20px 48px;border-top:1px solid var(--ink);padding-top:14px;max-width:560px}
@@ -59,10 +60,10 @@ ol{margin:0;padding-left:22px;display:grid;gap:8px;max-width:62ch}
 <main class="wrap">
 <section style="display:grid;gap:22px">
   <div class="eyebrow">Snowflake · Cortex Analyst · refusal test</div>
-  <p class="ledger" id="ledger"></p>
   <span class="tag">Fictional demo data · 20 runs per edit</span>
   <h1>One verified query was enough to make Cortex Analyst answer a question it should decline.</h1>
   <p class="lede">I asked "What is our customer churn rate?" after each edit to a semantic view where churn is not defined. Edit 0: no number in 20 of 20 runs. After one unrelated verified query: a number in 20 of 20. Told not to approximate: the answer said no in 20 of 20, while the SQL computed a number in 11.</p>
+  <div class="recap"><div class="eyebrow">Recap · runs that returned a number, out of 20</div><p class="ledger" id="ledger"></p></div>
   <div><a class="btn big" href="https://cal.com/simon-sangla/trust-sprint-scoping-call?ref=refusal">Book a 20-min scoping call</a></div>
   <div class="stats" id="stats"></div>
 </section>
