@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cortex Analyst said 85%. The right answer was 8%.</title>
+<meta name="description" content="Fictional data, real Cortex Analyst run, 8 Oct 2026: 10 business questions checked against expected answers. 5 pass, 3 warning, 2 fail.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cortex Analyst said 85%. The right answer was 8%.">
+<meta property="og:description" content="Fictional data, real Cortex Analyst run, 8 Oct 2026. 10 business questions: 5 pass, 3 warning, 2 fail.">
+<meta property="og:url" content="https://trustsprint.simonsangla.com/">
+<meta property="og:image" content="https://trustsprint.simonsangla.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#ffffff;--ink:#0f1d2e;--muted:#4a5768;--hair:#d9e0e8;--tint:#f2f5f8;
+  --snow:#1668a6;--ice:#eaf3fb;
+  --pass:#2f6b4f;--pass-bg:#e8f2ec;
+  --warn:#8a5a00;--warn-bg:#fbf1dc;
+  --fail:#9e3b2e;--fail-bg:#f9e9e6;
+  --code-bg:#0f1d2e;--code-ink:#dbe6f2;--code-dim:#8fa3ba;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0a1420;--ink:#e8eef5;--muted:#9fb0c3;--hair:#22324a;--tint:#102034;
+  --snow:#5db4ee;--ice:#0d2236;
+  --pass:#6cc59a;--pass-bg:#10281d;
+  --warn:#e5b758;--warn-bg:#2a2108;
+  --fail:#f09a8b;--fail-bg:#2e1511;
+  --code-bg:#07101a;--code-ink:#dbe6f2;--code-dim:#7f93ab;
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{width:100%;max-width:760px;margin:0 auto;padding-left:16px;padding-right:16px}
+a{color:var(--snow);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--snow);outline-offset:2px;border-radius:3px}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--bg);padding:8px 12px;z-index:10}
+.skip:focus{left:8px;top:8px}
+h1,h2,h3{font-weight:500;letter-spacing:-.02em;line-height:1.2;margin:0}
+h2{font-size:1.5rem;margin-bottom:20px}
+h3{font-size:1.0625rem;letter-spacing:-.01em;font-weight:600}
+p{margin:0 0 12px}
+code,pre{font-family:var(--mono)}
+code{font-size:.9em}
+section{padding-top:56px}
+
+.top{border-bottom:1px solid var(--hair);position:sticky;top:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);z-index:5}
+.bar{display:flex;justify-content:space-between;align-items:center;min-height:48px;gap:12px}
+.brand{font-weight:600;color:var(--ink);text-decoration:none;font-size:.9375rem}
+.bar nav{display:flex;gap:16px;font-size:.875rem}
+.bar nav a{color:var(--muted);text-decoration:none}
+.bar nav a:hover{color:var(--ink)}
+@media(max-width:480px){.bar nav a:first-child{display:none}}
+
+.hero{padding-top:40px}
+h1{font-size:clamp(1.75rem,6.4vw,2.75rem);letter-spacing:-.03em;line-height:1.12;max-width:20em}
+.duel{margin:32px 0 16px;padding:16px;border:1px solid var(--hair);border-radius:var(--r);background:var(--ice)}
+.duel .row{display:grid;grid-template-columns:1fr auto;grid-template-areas:"who val" "track track";gap:4px 12px;align-items:baseline}
+.duel .row+.row{margin-top:16px}
+.who{grid-area:who;font-size:.875rem;color:var(--muted)}
+.val{grid-area:val;font:500 1.5rem/1 var(--mono);font-variant-numeric:tabular-nums}
+.track{grid-area:track;display:block;height:14px;border-radius:7px;background:color-mix(in srgb,var(--hair) 70%,transparent);overflow:hidden}
+.fill{display:block;height:100%;width:var(--w);border-radius:7px;transform-origin:left;animation:grow .9s cubic-bezier(.2,.7,.2,1) .15s both}
+.wrong .fill{background:var(--fail)}.wrong .val{color:var(--fail)}
+.right .fill{background:var(--pass)}.right .val{color:var(--pass)}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.stamp{font-weight:500;margin-top:20px}
+.badge{display:inline-block;margin:0 0 14px;padding:4px 10px;border:1px solid var(--hair);border-radius:999px;font:500 .75rem/1.4 'IBM Plex Mono',monospace;color:var(--muted)}
+.fair{margin-top:16px;color:var(--muted);font-size:.9375rem}
+
+.stack{color:var(--muted);font-size:.9375rem}
+.jump{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 20px;border-radius:var(--r);border:1px solid var(--ink);font-weight:500;text-decoration:none;color:var(--bg);background:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--hair)}
+.btn.solid{background:var(--snow);border-color:var(--snow);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .btn.solid{color:#04121f}}
+.btn:hover{filter:brightness(1.08)}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.steps li{display:grid;grid-template-columns:32px 1fr;gap:12px;padding:20px 0;border-top:1px solid var(--hair)}
+.steps li:last-child{border-bottom:1px solid var(--hair)}
+.n{width:28px;height:28px;border-radius:50%;background:var(--ice);color:var(--snow);display:grid;place-items:center;font:500 .875rem var(--mono);border:1px solid var(--hair)}
+.steps h3{margin-bottom:6px}.steps p{margin:0;color:var(--muted)}
+.t{font-weight:600}.t.pass{color:var(--pass)}.t.trust_warning{color:var(--warn)}.t.fail{color:var(--fail)}
+
+.tally{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{padding:16px 12px;border-radius:var(--r);border:1px solid var(--hair)}
+.tile b{display:block;font:500 2.5rem/1 var(--mono);font-variant-numeric:tabular-nums}
+.tile span{font-size:.9375rem;color:var(--muted)}
+.tile.pass{background:var(--pass-bg)}.tile.pass b{color:var(--pass)}
+.tile.trust_warning{background:var(--warn-bg)}.tile.trust_warning b{color:var(--warn)}
+.tile.fail{background:var(--fail-bg)}.tile.fail b{color:var(--fail)}
+.strip{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-top:12px}
+.cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:44px;border-radius:5px;text-decoration:none;font-size:.625rem;line-height:1.1;color:#fff}
+.cell b{font:500 .6875rem var(--mono)}.cell i{font-style:normal;font-size:.75rem}
+.cell.pass{background:var(--pass)}.cell.trust_warning{background:var(--warn)}.cell.fail{background:var(--fail)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .cell{color:#07101a}}
+.legend{font-size:.875rem;color:var(--muted);margin-top:10px}
+
+.lead{margin-top:32px;padding:20px 16px;border:1px solid var(--snow);border-radius:var(--r);background:var(--bg);box-shadow:inset 4px 0 0 var(--snow)}
+.lead h3{font-size:1.25rem;margin-bottom:16px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 16px}
+.pair dt{font-size:.8125rem;color:var(--muted)}
+.pair dd{margin:2px 0 0;font:500 1.0625rem/1.3 var(--mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.pair.big dd{font-size:clamp(1.75rem,8vw,2.5rem);line-height:1.1}
+.pair .bad dd{color:var(--fail)}.pair .good dd{color:var(--pass)}
+.calc{font-size:.9375rem;color:var(--muted)}
+.codelabel{margin:20px 0 6px;font-size:.875rem;font-weight:500;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px}
+.req{font-weight:400;color:var(--muted)}
+pre.sql{margin:0;padding:14px 16px;background:var(--code-bg);color:var(--code-ink);border-radius:var(--r);font-size:.8125rem;line-height:1.7;-webkit-overflow-scrolling:touch}
+pre.sql code{font-size:inherit;white-space:pre-wrap;overflow-wrap:anywhere}
+pre.sql mark{background:transparent;color:inherit;border-radius:3px;padding:1px 3px;margin:0 -3px}
+pre.sql mark.bad{background:rgba(240,120,100,.28);box-shadow:0 0 0 1px rgba(240,140,120,.7)}
+pre.sql mark.ok{background:rgba(108,197,154,.2)}
+.key{font-size:.8125rem;color:var(--muted);margin-top:8px}
+.key mark{padding:1px 6px;border-radius:3px}
+.key mark.ok{background:var(--pass-bg);color:var(--pass)}.key mark.bad{background:var(--fail-bg);color:var(--fail)}
+.fixres{margin-top:10px}.fixres b{font:500 1.25rem var(--mono);color:var(--pass)}.fixres span{color:var(--muted);font-size:.9375rem}
+.note{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--hair);font-size:.9375rem;color:var(--muted)}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--hair);background:transparent;color:var(--ink);font:500 .875rem var(--sans);cursor:pointer}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cards{display:grid;gap:12px}
+.q{border:1px solid var(--hair);border-radius:var(--r);padding:16px;scroll-margin-top:64px;border-left-width:4px}
+.q.pass{border-left-color:var(--pass)}.q.trust_warning{border-left-color:var(--warn)}.q.fail{border-left-color:var(--fail)}
+.q[hidden]{display:none}
+.q header{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:8px}
+.qid{font:500 .875rem var(--mono)}
+.owner{font-size:.8125rem;color:var(--muted);margin-left:auto}
+.badge{font-size:.8125rem;font-weight:600;padding:2px 10px;border-radius:12px}
+.badge.pass{background:var(--pass-bg);color:var(--pass)}.badge.trust_warning{background:var(--warn-bg);color:var(--warn)}.badge.fail{background:var(--fail-bg);color:var(--fail)}
+.q h3{font-weight:500;margin-bottom:12px}
+.q .pair{margin-bottom:12px;padding:12px;background:var(--tint);border-radius:6px}
+.exp.none,.got.none{font-family:var(--sans);font-size:.9375rem;font-weight:500;color:var(--muted)}
+.q.fail .got.value{color:var(--fail)}
+.reason{font-size:.9375rem;color:var(--ink);margin-bottom:10px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8125rem;color:var(--muted);margin:0}
+.rid{font-family:var(--mono);font-size:.8125rem;color:var(--snow);cursor:pointer;word-break:break-all;border-bottom:1px dotted var(--snow)}
+.sqlbox{margin-top:12px}
+.sqlbox summary{cursor:pointer;font-size:.875rem;color:var(--snow);min-height:32px;display:flex;align-items:center}
+.sqlbox pre{margin-top:6px}
+
+.cta{padding:28px 20px;border-radius:var(--r);background:var(--ink);color:var(--bg)}
+.cta h2{margin-bottom:12px}.cta p{color:color-mix(in srgb,var(--bg) 82%,var(--ink))}
+.cta .btn.solid{margin-top:4px}
+.cta .yg{display:grid;gap:16px;margin:16px 0}
+.cta .yg h3{font-size:1rem;margin:0 0 6px}.cta .yg ul{margin:0;padding-left:18px}
+.cta .terms{font-weight:500}
+.cta .alt{margin-top:14px;font-size:.9375rem}.cta .alt a{color:inherit;text-decoration:underline}
+@media(min-width:720px){.cta .yg{grid-template-columns:1fr 1fr}}
+.foot{padding-top:48px;padding-bottom:48px}
+.foot p{margin-bottom:6px}.foot a{color:var(--ink);font-weight:500;text-decoration:none}
+.small{font-size:.8125rem;color:var(--muted)}
+
+@media(max-width:480px){pre.sql{padding:10px;font-size:.65rem}.lead{padding:20px 12px}}
+@media(min-width:640px){
+  .wrap{padding-left:24px;padding-right:24px}
+  section{padding-top:72px}
+  .duel{padding:24px}
+  .duel .row{grid-template-columns:11rem 1fr 5.5rem;grid-template-areas:"who track val";align-items:center}
+  .val{text-align:right}
+  .lead{padding:28px}
+  .cta{padding:40px}
+  .pair{gap:24px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.fill{animation:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#analysis">Skip to the analysis</a>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#top">Trust Sprint demo</a>
+    <nav aria-label="Sections"><a href="#how">How it works</a><a href="#analysis">Analysis</a><a href="#questions">Questions</a></nav>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero wrap">
+  <p class="badge">Fictional data &middot; real Cortex Analyst run &middot; 8 Oct 2026</p>
+  <h1>On a fictional dataset, I asked Cortex Analyst for the June conversion rate. It said 85%. The right answer was 8%.</h1>
+  <figure class="duel" aria-label="Cortex answer 85.26% against expected answer 8.09%">
+    <div class="row wrong"><span class="who">Cortex Analyst said</span><span class="track"><span class="fill" style="--w:85.26%"></span></span><span class="val">85.26%</span></div>
+    <div class="row right"><span class="who">The right answer</span><span class="track"><span class="fill" style="--w:8.09%"></span></span><span class="val">8.09%</span></div>
+  </figure>
+  <p class="fair">The semantic view exposes two dates and does not say which one defines a month for this metric. Cortex picked both. A written expected answer is what catches that.</p>
+  <p class="stamp">One run, one semantic view, fictional data.</p>
+  <p class="stack">Stack: Snowflake semantic view, Cortex Analyst, dbt tests. 10 questions, 10 request IDs kept for audit.</p>
+  <p class="jump"><a class="btn" href="#analysis">See the analysis</a><a class="btn ghost" href="#how">How it was checked</a></p>
+</section>
+
+<section class="wrap" id="how">
+  <h2>How the check works</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div><h3>What was asked</h3>
+      <p>10 business questions, the kind a head of growth or a finance lead asks every week. Each has an expected answer re-derived from the raw tables and a named owner (3 owners: finance lead, head of growth, product lead).</p></div></li>
+    <li><span class="n">2</span><div><h3>How it is checked</h3>
+      <p>Each Cortex Analyst answer is compared with the expected answer. <b class="t pass">Pass</b>: it matches and the metric is defined in the semantic view. <b class="t trust_warning">Warning</b>: the number may be right, but it was produced in a way you should not trust. <b class="t fail">Fail</b>: wrong, missing or invented.</p></div></li>
+    <li><span class="n">3</span><div><h3>What failed and why</h3>
+      <p>2 of 10 fail and 3 carry a warning. Every row below states the reason and keeps the request ID, so the exact Cortex call can be found again.</p></div></li>
+  </ol>
+</section>
+
+<section class="wrap" id="analysis">
+  <h2>The result</h2>
+  <div class="tally" role="group" aria-label="Verdict summary">
+    <div class="tile pass"><b>5</b><span>pass</span></div>
+    <div class="tile trust_warning"><b>3</b><span>warning</span></div>
+    <div class="tile fail"><b>2</b><span>fail</span></div>
+  </div>
+  <div class="strip" aria-label="Verdict per question"><a class="cell pass" href="#q01" aria-label="Q01: Pass"><b>Q01</b><i aria-hidden="true">&#10003;</i></a><a class="cell pass" href="#q02" aria-label="Q02: Pass"><b>Q02</b><i aria-hidden="true">&#10003;</i></a><a class="cell pass" href="#q03" aria-label="Q03: Pass"><b>Q03</b><i aria-hidden="true">&#10003;</i></a><a class="cell fail" href="#q04" aria-label="Q04: Fail"><b>Q04</b><i aria-hidden="true">&#10005;</i></a><a class="cell fail" href="#q05" aria-label="Q05: Fail"><b>Q05</b><i aria-hidden="true">&#10005;</i></a><a class="cell trust_warning" href="#q06" aria-label="Q06: Warning"><b>Q06</b><i aria-hidden="true">!</i></a><a class="cell pass" href="#q07" aria-label="Q07: Pass"><b>Q07</b><i aria-hidden="true">&#10003;</i></a><a class="cell trust_warning" href="#q08" aria-label="Q08: Warning"><b>Q08</b><i aria-hidden="true">!</i></a><a class="cell trust_warning" href="#q09" aria-label="Q09: Warning"><b>Q09</b><i aria-hidden="true">!</i></a><a class="cell pass" href="#q10" aria-label="Q10: Pass"><b>Q10</b><i aria-hidden="true">&#10003;</i></a></div>
+  <p class="legend">Tap a question to jump to its row. Of 10 questions, 5 pass, 3 carry a warning, 2 fail.</p>
+
+  <article class="lead" id="finding">
+    <h3>The lead finding: Q04, the June conversion rate</h3>
+    <dl class="pair big">
+      <div class="bad"><dt>Cortex answered</dt><dd>85.26%</dd></div>
+      <div class="good"><dt>Expected</dt><dd>8.09%</dd></div>
+    </dl>
+    <p>Cortex filtered the date twice: once on <code>sessions.session_date</code> and again on <code>bookings.booking_date</code>. The second filter keeps only the sessions that have a June booking, so the denominator drops and the rate inflates.</p>
+    <p class="calc">81 confirmed bookings &divide; 95 sessions that have a June booking (including 14 sessions whose booking was cancelled) = 85.26%. The right denominator is all 1,001 June sessions: 81 &divide; 1,001 = 8.09%.</p>
+    <p class="codelabel">SQL generated by Cortex Analyst <span class="req">request <code class="rid" tabindex="0" role="button" title="2f271fe5-3db1-4e17-8784-cd9be4d2d4f6" data-full="2f271fe5-3db1-4e17-8784-cd9be4d2d4f6" data-short="2f271fe5…d4f6">2f271fe5…d4f6</code></span></p>
+    <pre class="sql"><code>SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS CONVERSION_RATE
+  WHERE <mark class="ok">sessions.session_date &gt;= &#x27;2026-06-01&#x27;</mark>
+    AND <mark class="ok">sessions.session_date &lt; &#x27;2026-07-01&#x27;</mark>
+    AND <mark class="bad">bookings.booking_date &gt;= &#x27;2026-06-01&#x27;</mark>
+    AND <mark class="bad">bookings.booking_date &lt; &#x27;2026-07-01&#x27;</mark>
+)
+</code></pre>
+    <p class="key"><mark class="ok">session filter</mark> keeps June sessions. <mark class="bad">booking filter</mark> is the extra one.</p>
+    <p class="codelabel">Same metric with the session-date filter only</p>
+    <pre class="sql fix"><code>SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS CONVERSION_RATE
+  WHERE sessions.session_date &gt;= &#x27;2026-06-01&#x27;
+    AND sessions.session_date &lt; &#x27;2026-07-01&#x27;
+)
+</code></pre>
+    <p class="fixres"><b>8.09%</b> <span>matches the expected answer 8.09%. Recomputed from the seed data in the dbt build.</span></p>
+    <p class="note">Q05 follows the same pattern: Cortex answered 90.77%, the expected answer is 8.79%.</p>
+  </article>
+</section>
+
+<section class="wrap" id="questions">
+  <h2>All 10 questions</h2>
+  <div class="filters" role="group" aria-label="Filter by verdict">
+    <button type="button" class="chip on" data-f="all">All 10</button>
+    <button type="button" class="chip fail" data-f="fail">Fail 2</button>
+    <button type="button" class="chip trust_warning" data-f="trust_warning">Warning 3</button>
+    <button type="button" class="chip pass" data-f="pass">Pass 5</button>
+  </div>
+  <div class="cards">
+<article class="q pass" id="q01" data-verdict="pass">
+  <header>
+    <span class="qid">Q01</span>
+    <span class="badge pass"><span aria-hidden="true">&#10003;</span> Pass</span>
+    <span class="owner">Owner: head of growth</span>
+  </header>
+  <h3>How many bookings did we have in March 2026?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp">22</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got value">22</dd></div>
+  </dl>
+  <p class="reason">Value matches the expected answer and the metric is governed by the semantic view.</p>
+  <p class="meta"><span>Metric defined in the semantic view</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="f648d3b3-51d0-4750-98cd-c60cdc557f24" data-full="f648d3b3-51d0-4750-98cd-c60cdc557f24" data-short="f648d3b3…7f24">f648d3b3…7f24</code></span></p>
+  <details class="sqlbox"><summary>Generated SQL</summary><pre class="sql"><code>SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS bookings
+  WHERE bookings.booking_date &gt;= &#x27;2026-03-01&#x27;
+    AND bookings.booking_date &lt; &#x27;2026-04-01&#x27;
+)
+</code></pre></details>
+</article>
+
+<article class="q pass" id="q02" data-verdict="pass">
+  <header>
+    <span class="qid">Q02</span>
+    <span class="badge pass"><span aria-hidden="true">&#10003;</span> Pass</span>
+    <span class="owner">Owner: finance lead</span>
+  </header>
+  <h3>What was total revenue in Q1 2026?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp">6,983</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got value">6,983</dd></div>
+  </dl>
+  <p class="reason">Value matches the expected answer and the metric is governed by the semantic view.</p>
+  <p class="meta"><span>Metric defined in the semantic view</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="87f7008d-96f4-43e8-b65c-e1ce4246e31c" data-full="87f7008d-96f4-43e8-b65c-e1ce4246e31c" data-short="87f7008d…e31c">87f7008d…e31c</code></span></p>
+  <details class="sqlbox"><summary>Generated SQL</summary><pre class="sql"><code>SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS revenue
+  WHERE bookings.booking_date &gt;= &#x27;2026-01-01&#x27;
+    AND bookings.booking_date &lt; &#x27;2026-04-01&#x27;
+)
+</code></pre></details>
+</article>
+
+<article class="q pass" id="q03" data-verdict="pass">
+  <header>
+    <span class="qid">Q03</span>
+    <span class="badge pass"><span aria-hidden="true">&#10003;</span> Pass</span>
+    <span class="owner">Owner: product lead</span>
+  </header>
+  <h3>How many active users did we have in April 2026?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp">196</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got value">196</dd></div>
+  </dl>
+  <p class="reason">Value matches the expected answer and the metric is governed by the semantic view.</p>
+  <p class="meta"><span>Metric defined in the semantic view</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="228b9cb0-fd58-439d-8477-eb443d0ff8be" data-full="228b9cb0-fd58-439d-8477-eb443d0ff8be" data-short="228b9cb0…f8be">228b9cb0…f8be</code></span></p>
+  <details class="sqlbox"><summary>Generated SQL</summary><pre class="sql"><code>SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS active_users
+  WHERE sessions.session_date &gt;= &#x27;2026-04-01&#x27;
+    AND sessions.session_date &lt; &#x27;2026-05-01&#x27;
+)
+</code></pre></details>
+</article>
+
+<article class="q fail" id="q04" data-verdict="fail">
+  <header>
+    <span class="qid">Q04</span>
+    <span class="badge fail"><span aria-hidden="true">&#10005;</span> Fail</span>
+    <span class="owner">Owner: head of growth</span>
+  </header>
+  <h3>What was the booking conversion rate in June 2026?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp">8.09%</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got value">85.26%</dd></div>
+  </dl>
+  <p class="reason">Value 0.8526 differs from expected 0.0809 (tolerance 0.0005).</p>
+  <p class="meta"><span>Metric defined in the semantic view</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="2f271fe5-3db1-4e17-8784-cd9be4d2d4f6" data-full="2f271fe5-3db1-4e17-8784-cd9be4d2d4f6" data-short="2f271fe5…d4f6">2f271fe5…d4f6</code></span></p>
+  <details class="sqlbox"><summary>Generated SQL</summary><pre class="sql"><code>SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS CONVERSION_RATE
+  WHERE sessions.session_date &gt;= &#x27;2026-06-01&#x27;
+    AND sessions.session_date &lt; &#x27;2026-07-01&#x27;
+    AND bookings.booking_date &gt;= &#x27;2026-06-01&#x27;
+    AND bookings.booking_date &lt; &#x27;2026-07-01&#x27;
+)
+</code></pre></details>
+</article>
+
+<article class="q fail" id="q05" data-verdict="fail">
+  <header>
+    <span class="qid">Q05</span>
+    <span class="badge fail"><span aria-hidden="true">&#10005;</span> Fail</span>
+    <span class="owner">Owner: head of growth</span>
+  </header>
+  <h3>What was the booking conversion rate for the organic channel in the first half of 2026?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp">8.79%</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got value">90.77%</dd></div>
+  </dl>
+  <p class="reason">Value 0.9077 differs from expected 0.0879 (tolerance 0.0005).</p>
+  <p class="meta"><span>Metric defined in the semantic view</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="23675ca8-411c-4a3a-8849-193b65812e8e" data-full="23675ca8-411c-4a3a-8849-193b65812e8e" data-short="23675ca8…2e8e">23675ca8…2e8e</code></span></p>
+  <details class="sqlbox"><summary>Generated SQL</summary><pre class="sql"><code>SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS CONVERSION_RATE
+  WHERE sessions.channel = &#x27;organic&#x27;
+    AND sessions.session_date &gt;= &#x27;2026-01-01&#x27;
+    AND sessions.session_date &lt;= &#x27;2026-06-30&#x27;
+    AND bookings.booking_date &gt;= &#x27;2026-01-01&#x27;
+    AND bookings.booking_date &lt;= &#x27;2026-06-30&#x27;
+)
+</code></pre></details>
+</article>
+
+<article class="q trust_warning" id="q06" data-verdict="trust_warning">
+  <header>
+    <span class="qid">Q06</span>
+    <span class="badge trust_warning"><span aria-hidden="true">!</span> Warning</span>
+    <span class="owner">Owner: head of growth</span>
+  </header>
+  <h3>What was the booking conversion rate for the partner channel in January 2026?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp none">Undefined</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got none">Empty result</dd></div>
+  </dl>
+  <p class="reason">Empty result, with no statement that the metric is undefined for this slice.</p>
+  <p class="meta"><span>Metric defined in the semantic view</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="75b6843f-05d7-43af-9935-739f44675b92" data-full="75b6843f-05d7-43af-9935-739f44675b92" data-short="75b6843f…5b92">75b6843f…5b92</code></span></p>
+  <details class="sqlbox"><summary>Generated SQL</summary><pre class="sql"><code>SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS CONVERSION_RATE
+  DIMENSIONS sessions.channel
+  WHERE sessions.channel = &#x27;partner&#x27;
+    AND sessions.session_date &gt;= &#x27;2026-01-01&#x27;
+    AND sessions.session_date &lt; &#x27;2026-02-01&#x27;
+)
+</code></pre></details>
+</article>
+
+<article class="q pass" id="q07" data-verdict="pass">
+  <header>
+    <span class="qid">Q07</span>
+    <span class="badge pass"><span aria-hidden="true">&#10003;</span> Pass</span>
+    <span class="owner">Owner: finance lead</span>
+  </header>
+  <h3>Which acquisition channel generated the most revenue in the first half of 2026?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp">organic</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got value">organic</dd></div>
+  </dl>
+  <p class="reason">Value matches the expected answer and the metric is governed by the semantic view.</p>
+  <p class="meta"><span>Metric defined in the semantic view</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="f625cc27-db47-4702-8b69-00556c25890d" data-full="f625cc27-db47-4702-8b69-00556c25890d" data-short="f625cc27…890d">f625cc27…890d</code></span></p>
+  <details class="sqlbox"><summary>Generated SQL</summary><pre class="sql"><code>SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS revenue
+  DIMENSIONS sessions.channel
+  WHERE sessions.session_date &gt;= &#x27;2026-01-01&#x27;
+    AND sessions.session_date &lt;= &#x27;2026-06-30&#x27;
+)
+ORDER BY revenue DESC NULLS LAST LIMIT 1</code></pre></details>
+</article>
+
+<article class="q trust_warning" id="q08" data-verdict="trust_warning">
+  <header>
+    <span class="qid">Q08</span>
+    <span class="badge trust_warning"><span aria-hidden="true">!</span> Warning</span>
+    <span class="owner">Owner: finance lead</span>
+  </header>
+  <h3>What was the average booking value in the first half of 2026?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp">97</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got value">97</dd></div>
+  </dl>
+  <p class="reason">Correct value, but avg_booking_value is not defined in the semantic view: the analyst computed it ad hoc.</p>
+  <p class="meta"><span>Metric missing from the semantic view</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="e4f60910-2242-47f8-acfd-d8af6a1fbecb" data-full="e4f60910-2242-47f8-acfd-d8af6a1fbecb" data-short="e4f60910…becb">e4f60910…becb</code></span></p>
+  <details class="sqlbox"><summary>Generated SQL</summary><pre class="sql"><code>SELECT sv.revenue / NULLIF(sv.bookings, 0) AS avg_booking_value FROM ( SELECT * FROM SEMANTIC_VIEW(
+  MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV
+  METRICS revenue, bookings
+  WHERE bookings.booking_date &gt;= &#x27;2026-01-01&#x27;
+    AND bookings.booking_date &lt;= &#x27;2026-06-30&#x27; )
+)
+AS sv</code></pre></details>
+</article>
+
+<article class="q trust_warning" id="q09" data-verdict="trust_warning">
+  <header>
+    <span class="qid">Q09</span>
+    <span class="badge trust_warning"><span aria-hidden="true">!</span> Warning</span>
+    <span class="owner">Owner: product lead</span>
+  </header>
+  <h3>How many paying customers do we have?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp">134</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got none">No SQL, asked to clarify</dd></div>
+  </dl>
+  <p class="reason">Asked for clarification: &#x27;paying customers&#x27; is not defined in the semantic view (expected 134 assumes plan ≠ free)</p>
+  <p class="meta"><span>Metric missing from the semantic view</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="beeab2a5-531c-4113-9557-fd0f00ef678f" data-full="beeab2a5-531c-4113-9557-fd0f00ef678f" data-short="beeab2a5…678f">beeab2a5…678f</code></span></p>
+  
+</article>
+
+<article class="q pass" id="q10" data-verdict="pass">
+  <header>
+    <span class="qid">Q10</span>
+    <span class="badge pass"><span aria-hidden="true">&#10003;</span> Pass</span>
+    <span class="owner">Owner: product lead</span>
+  </header>
+  <h3>What is our customer churn rate?</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp none">Undefined</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got none">Refused, no SQL generated</dd></div>
+  </dl>
+  <p class="reason">Correct refusal: no SQL generated for a question the data cannot answer.</p>
+  <p class="meta"><span>Metric undefined in the data</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="45d17a06-d9c7-426e-b583-4f2b16cc38ea" data-full="45d17a06-d9c7-426e-b583-4f2b16cc38ea" data-short="45d17a06…38ea">45d17a06…38ea</code></span></p>
+  
+</article>
+  </div>
+</section>
+
+<section class="wrap" id="cta">
+  <div class="cta">
+    <h2>Run this check on your own data</h2>
+    <p>Trust Sprint: 5 days, fixed scope, from EUR 4,500. I write the question pack with your owners, run it against your Cortex Analyst or semantic layer, and hand back verdicts, reasons and fixes like the Q04 one above.</p>
+    <div class="yg">
+      <div><h3>What you provide</h3><ul><li>Read access to the Snowflake account</li><li>20-50 business questions</li><li>A named owner per metric</li></ul></div>
+      <div><h3>What you get</h3><ul><li>The question pack with expected answers</li><li>Pass, warning or fail per question, with reasons</li><li>The fixes for each failure</li><li>A written readiness report</li></ul></div>
+    </div>
+    <p class="terms">5 working days, fixed scope, from EUR 4,500.</p>
+    <p><a class="btn solid" href="https://cal.com/simon-sangla/trust-sprint-scoping-call?ref=demo">Book a scoping call</a></p>
+    <p class="alt"><a href="https://simonsangla.com/en/sample-report">Not ready for a call? See a sample report</a></p>
+  </div>
+</section>
+</main>
+
+<footer class="wrap foot">
+  <p><a href="https://simonsangla.com">Simon Sangla &middot; simonsangla.com</a></p>
+  <p class="small">The dataset is fictional. The Cortex Analyst answers, SQL and request IDs are from one real run on 8 Oct 2026.</p>
+</footer>
+<script>
+(function(){
+  var chips=document.querySelectorAll('.chip'),cards=document.querySelectorAll('.q');
+  chips.forEach(function(c){c.addEventListener('click',function(){
+    var f=c.getAttribute('data-f');
+    chips.forEach(function(x){x.classList.toggle('on',x===c)});
+    cards.forEach(function(q){q.hidden=!(f==='all'||q.getAttribute('data-verdict')===f)});
+  })});
+  function toggle(el){var full=el.getAttribute('data-full');el.textContent=el.textContent===full?el.getAttribute('data-short'):full}
+  document.querySelectorAll('.rid').forEach(function(el){
+    el.addEventListener('click',function(){toggle(el)});
+    el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(el)}});
+  });
+  if(location.hash){var t=document.querySelector(location.hash);if(t&&t.hidden)t.hidden=false}
+})();
+</script>
+</body>
+</html>

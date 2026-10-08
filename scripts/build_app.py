@@ -1,0 +1,644 @@
+#!/usr/bin/env python3
+"""Generate the static Trust Sprint demo site (app/index.html + og card).
+
+Every figure on the page is read from the frozen seeds and from the dbt
+verdict tables in trust_sprint_demo.duckdb (run `dbt build` first):
+
+    cd /Users/simonsangla/projects/trust-sprint-demo
+    DBT_PROFILES_DIR=. uvx --with dbt-duckdb --from dbt-core dbt build
+    uvx --with duckdb python scripts/build_app.py [--og]
+
+--og also renders app/og.png (1200x630) through playwright-core from the npx
+cache and installed Chrome. No installs, no network.
+"""
+from __future__ import annotations
+
+import csv
+import glob
+import html
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import duckdb
+
+ROOT = Path(__file__).resolve().parent.parent
+SEEDS = ROOT / "seeds"
+DB = ROOT / "trust_sprint_demo.duckdb"
+APP = ROOT / "app"
+
+# Page copy that is not data. Anything numeric about the run comes from data.
+SITE_URL = "https://trustsprint.simonsangla.com/"
+OG_IMAGE_URL = SITE_URL + "og.png"
+CTA_URL = "https://cal.com/simon-sangla/trust-sprint-scoping-call?ref=demo"
+CTA_PRICE = "EUR 4,500"
+CTA_DAYS = 5
+FOOTER = "Simon Sangla &middot; simonsangla.com"
+SITE_HOME = "https://simonsangla.com"
+
+VERDICT_LABEL = {"pass": "Pass", "trust_warning": "Warning", "fail": "Fail"}
+VERDICT_ORDER = ["pass", "trust_warning", "fail"]
+VERDICT_MARK = {"pass": "&#10003;", "trust_warning": "!", "fail": "&#10005;"}
+MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+# ---------------------------------------------------------------- data ----
+def read_csv(name: str) -> list[dict]:
+    with open(SEEDS / name, newline="", encoding="utf-8") as fh:
+        return list(csv.DictReader(fh))
+
+
+def load() -> dict:
+    if not DB.exists():
+        sys.exit(f"missing {DB}: run dbt build first (see module docstring)")
+    con = duckdb.connect(str(DB), read_only=True)
+    cur = con.execute(
+        "select question_id, question, metric_key, owner, set_name, expected_answer, answer_value, "
+        "verdict, reason, request_id, run_ts, generated_sql from fct_question_verdicts order by question_id"
+    )
+    cols = [d[0] for d in cur.description]
+    verdicts = [dict(zip(cols, r)) for r in cur.fetchall()]
+    summary = {v: (n, ids) for v, n, ids in con.execute(
+        "select verdict, n_questions, question_ids from fct_verdict_summary").fetchall()}
+    truth = {q: v for q, v in con.execute("select question_id, truth_value from fct_metric_truth").fetchall()}
+    pack = {r["question_id"]: r for r in read_csv("question_pack.csv")}
+    answers = {r["question_id"]: r for r in read_csv("cortex_answers.csv")}
+    registry = {r["metric_key"]: r for r in read_csv("metric_registry.csv")}
+    return dict(con=con, verdicts=verdicts, summary=summary, truth=truth,
+                pack=pack, answers=answers, registry=registry)
+
+
+def june_decomposition(con, pack_row: dict) -> dict:
+    """Numerator and the two denominators behind Q04, straight from staging."""
+    d0, d1 = pack_row["date_from"], pack_row["date_to"]
+    num = con.execute(
+        "select count(*) from stg_bookings where is_confirmed and booking_date between ? and ?",
+        [d0, d1]).fetchone()[0]
+    sess_all = con.execute(
+        "select count(*) from stg_sessions where session_date between ? and ?", [d0, d1]).fetchone()[0]
+    sess_booked = con.execute(
+        "select count(distinct s.session_id) from stg_sessions s join stg_bookings b using (session_id) "
+        "where s.session_date between ? and ? and b.booking_date between ? and ?",
+        [d0, d1, d0, d1]).fetchone()[0]
+    sess_cancelled = con.execute(
+        "select count(distinct s.session_id) from stg_sessions s join stg_bookings b using (session_id) "
+        "where not b.is_confirmed and s.session_date between ? and ? and b.booking_date between ? and ?",
+        [d0, d1, d0, d1]).fetchone()[0]
+    return dict(num=num, sess_all=sess_all, sess_booked=sess_booked, sess_cancelled=sess_cancelled)
+
+
+# ---------------------------------------------------------- formatting ----
+def esc(s) -> str:
+    return html.escape("" if s is None else str(s), quote=True)
+
+
+def pct(x: float) -> str:
+    return f"{x * 100:.2f}%"
+
+
+def num(x: float) -> str:
+    if abs(x - round(x)) < 1e-9:
+        return f"{int(round(x)):,}"
+    return f"{x:,.2f}"
+
+
+def owner_label(o: str) -> str:
+    return o.replace("_", " ")
+
+
+def fmt_value(metric_key: str, raw) -> str:
+    try:
+        x = float(raw)
+    except (TypeError, ValueError):
+        return str(raw)
+    return pct(x) if metric_key == "conversion_rate" else num(x)
+
+
+def pretty_date(ts: str) -> str:
+    y, m, d = str(ts)[:10].split("-")
+    return f"{int(d)} {MONTHS[int(m) - 1]} {y}"
+
+
+def short_id(rid: str) -> str:
+    return rid[:8] + "\u2026" + rid[-4:]
+
+
+# ----------------------------------------------------------------- SQL ----
+COND = re.compile(r"(\w+\.\w+ (?:>=|<=|<|>|=) '[^']*')")
+
+
+def clean_sql(sql: str) -> str:
+    sql = re.sub(r"\s*--\s*Generated by Cortex Analyst.*$", "", sql.strip(), flags=re.S)
+    return sql.strip().rstrip(";").strip()
+
+
+def split_sql(sql: str) -> list[str]:
+    """Lay the one-line Cortex SQL out on readable lines."""
+    s = clean_sql(sql)
+    s = re.sub(r"SEMANTIC_VIEW\(\s*", "SEMANTIC_VIEW(\n  ", s)
+    s = re.sub(r"\s+(METRICS|DIMENSIONS|WHERE)\s+", r"\n  \1 ", s)
+    s = re.sub(r"\s+AND\s+", "\n    AND ", s)
+    s = re.sub(r"\s+\)\s*(ORDER BY|AS\b|$)", r"\n)\n\1", s)
+    return s.split("\n")
+
+
+def sql_html(sql: str, mark: bool) -> str:
+    out = []
+    for line in split_sql(sql):
+        if not mark:
+            out.append(esc(line))
+            continue
+        parts = COND.split(line)  # odd indexes are the matched conditions
+        buf = []
+        for i, part in enumerate(parts):
+            if i % 2 == 1 and "booking_date" in part:
+                buf.append(f'<mark class="bad">{esc(part)}</mark>')
+            elif i % 2 == 1 and "session_date" in part:
+                buf.append(f'<mark class="ok">{esc(part)}</mark>')
+            else:
+                buf.append(esc(part))
+        out.append("".join(buf))
+    return "\n".join(out)
+
+
+def fixed_sql(sql: str) -> str:
+    """Same query with the booking_date filters removed."""
+    s = clean_sql(sql)
+    return re.sub(r"\s+AND\s+bookings\.booking_date\s*(?:>=|<=|<|>|=)\s*'[^']*'", "", s)
+
+
+# ---------------------------------------------------------------- page ----
+def answer_display(v: dict, ans: dict) -> tuple[str, str]:
+    """(text, kind) for what Cortex returned."""
+    if v["answer_value"] is not None:
+        return fmt_value(v["metric_key"], v["answer_value"]), "value"
+    if not v["generated_sql"]:
+        if v["verdict"] == "pass":
+            return "Refused, no SQL generated", "none"
+        return "No SQL, asked to clarify", "none"
+    return "Empty result", "none"
+
+
+def expected_display(v: dict, pack_row: dict) -> str:
+    if str(v["expected_answer"]).upper() == "UNDEFINED":
+        return "Undefined"
+    return fmt_value(v["metric_key"], v["expected_answer"])
+
+
+def tidy_reason(r: str) -> str:
+    """The dbt reason clips analyst text at 160 chars; end on a whole word."""
+    if len(r) > 150 and not r.rstrip().endswith((".", "?", "!")):
+        return r.rsplit(" ", 1)[0].rstrip(",;:") + " ..."
+    return r
+
+
+def build_cards(d: dict) -> str:
+    cards = []
+    for v in d["verdicts"]:
+        qid = v["question_id"]
+        reg = d["registry"][v["metric_key"]]
+        ans_txt, kind = answer_display(v, d["answers"][qid])
+        exp_txt = expected_display(v, d["pack"][qid])
+        metric_tag = {
+            "governed": "Metric defined in the semantic view",
+            "not_in_view": "Metric missing from the semantic view",
+            "undefined": "Metric undefined in the data",
+        }[reg["status"]]
+        rid = v["request_id"]
+        sql_block = ""
+        if v["generated_sql"]:
+            sql_block = (
+                f'<details class="sqlbox"><summary>Generated SQL</summary>'
+                f'<pre class="sql"><code>{sql_html(v["generated_sql"], mark=False)}</code></pre></details>')
+        cards.append(f"""
+<article class="q {v['verdict']}" id="{qid.lower()}" data-verdict="{v['verdict']}">
+  <header>
+    <span class="qid">{esc(qid)}</span>
+    <span class="badge {v['verdict']}"><span aria-hidden="true">{VERDICT_MARK[v['verdict']]}</span> {VERDICT_LABEL[v['verdict']]}</span>
+    <span class="owner">Owner: {esc(owner_label(v['owner']))}</span>
+  </header>
+  <h3>{esc(v['question'])}</h3>
+  <dl class="pair">
+    <div><dt>Expected</dt><dd class="exp{" none" if exp_txt == "Undefined" else ""}">{esc(exp_txt)}</dd></div>
+    <div><dt>Cortex answered</dt><dd class="got {kind}">{esc(ans_txt)}</dd></div>
+  </dl>
+  <p class="reason">{esc(tidy_reason(v['reason']))}</p>
+  <p class="meta"><span>{esc(metric_tag)}</span>
+    <span class="ridwrap">Request ID <code class="rid" tabindex="0" role="button" title="{esc(rid)}" data-full="{esc(rid)}" data-short="{esc(short_id(rid))}">{esc(short_id(rid))}</code></span></p>
+  {sql_block}
+</article>""")
+    return "\n".join(cards)
+
+
+def build_strip(d: dict) -> str:
+    cells = []
+    for v in d["verdicts"]:
+        q = v["question_id"]
+        cells.append(
+            f'<a class="cell {v["verdict"]}" href="#{q.lower()}" '
+            f'aria-label="{q}: {VERDICT_LABEL[v["verdict"]]}"><b>{q}</b>'
+            f'<i aria-hidden="true">{VERDICT_MARK[v["verdict"]]}</i></a>')
+    return "".join(cells)
+
+
+def build_page(d: dict) -> str:
+    v_by = {v["question_id"]: v for v in d["verdicts"]}
+    total = len(d["verdicts"])
+    counts = {k: d["summary"].get(k, (0, ""))[0] for k in VERDICT_ORDER}
+    owners = sorted({v["owner"] for v in d["verdicts"]})
+    run_date = pretty_date(max(str(v["run_ts"]) for v in d["verdicts"]))
+
+    q4 = v_by["Q04"]
+    got4 = float(q4["answer_value"])
+    exp4 = float(d["pack"]["Q04"]["expected_answer"])
+    truth4 = float(d["truth"]["Q04"])
+    dec = june_decomposition(d["con"], d["pack"]["Q04"])
+    sql4 = q4["generated_sql"]
+    fix4 = fixed_sql(sql4)
+
+    # Other conversion-rate failures that share the double filter.
+    siblings = [v for v in d["verdicts"]
+                if v["question_id"] != "Q04" and v["verdict"] == "fail" and v["generated_sql"]
+                and "booking_date" in v["generated_sql"] and "session_date" in v["generated_sql"]]
+    sib_txt = ""
+    if siblings:
+        s = siblings[0]
+        sib_txt = (f'<p class="note">{esc(s["question_id"])} follows the same pattern: Cortex answered '
+                   f'{pct(float(s["answer_value"]))}, the expected answer is '
+                   f'{pct(float(d["pack"][s["question_id"]]["expected_answer"]))}.</p>')
+
+    hero_got, hero_exp = round(got4 * 100), round(exp4 * 100)
+    bar_got, bar_exp = got4 * 100, exp4 * 100
+
+    css = CSS
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cortex Analyst said {hero_got}%. The right answer was {hero_exp}%.</title>
+<meta name="description" content="Fictional data, real Cortex Analyst run, {run_date}: {total} business questions checked against expected answers. {counts['pass']} pass, {counts['trust_warning']} warning, {counts['fail']} fail.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cortex Analyst said {hero_got}%. The right answer was {hero_exp}%.">
+<meta property="og:description" content="Fictional data, real Cortex Analyst run, {run_date}. {total} business questions: {counts['pass']} pass, {counts['trust_warning']} warning, {counts['fail']} fail.">
+<meta property="og:url" content="{SITE_URL}">
+<meta property="og:image" content="{OG_IMAGE_URL}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>{css}</style>
+</head>
+<body>
+<a class="skip" href="#analysis">Skip to the analysis</a>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#top">Trust Sprint demo</a>
+    <nav aria-label="Sections"><a href="#how">How it works</a><a href="#analysis">Analysis</a><a href="#questions">Questions</a></nav>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero wrap">
+  <p class="badge">Fictional data &middot; real Cortex Analyst run &middot; {run_date}</p>
+  <h1>On a fictional dataset, I asked Cortex Analyst for the June conversion rate. It said {hero_got}%. The right answer was {hero_exp}%.</h1>
+  <figure class="duel" aria-label="Cortex answer {pct(got4)} against expected answer {pct(exp4)}">
+    <div class="row wrong"><span class="who">Cortex Analyst said</span><span class="track"><span class="fill" style="--w:{bar_got:.2f}%"></span></span><span class="val">{pct(got4)}</span></div>
+    <div class="row right"><span class="who">The right answer</span><span class="track"><span class="fill" style="--w:{bar_exp:.2f}%"></span></span><span class="val">{pct(exp4)}</span></div>
+  </figure>
+  <p class="fair">The semantic view exposes two dates and does not say which one defines a month for this metric. Cortex picked both. A written expected answer is what catches that.</p>
+  <p class="stamp">One run, one semantic view, fictional data.</p>
+  <p class="stack">Stack: Snowflake semantic view, Cortex Analyst, dbt tests. {total} questions, {total} request IDs kept for audit.</p>
+  <p class="jump"><a class="btn" href="#analysis">See the analysis</a><a class="btn ghost" href="#how">How it was checked</a></p>
+</section>
+
+<section class="wrap" id="how">
+  <h2>How the check works</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div><h3>What was asked</h3>
+      <p>{total} business questions, the kind a head of growth or a finance lead asks every week. Each has an expected answer re-derived from the raw tables and a named owner ({len(owners)} owners: {esc(', '.join(owner_label(o) for o in owners))}).</p></div></li>
+    <li><span class="n">2</span><div><h3>How it is checked</h3>
+      <p>Each Cortex Analyst answer is compared with the expected answer. <b class="t pass">Pass</b>: it matches and the metric is defined in the semantic view. <b class="t trust_warning">Warning</b>: the number may be right, but it was produced in a way you should not trust. <b class="t fail">Fail</b>: wrong, missing or invented.</p></div></li>
+    <li><span class="n">3</span><div><h3>What failed and why</h3>
+      <p>{counts['fail']} of {total} fail and {counts['trust_warning']} carry a warning. Every row below states the reason and keeps the request ID, so the exact Cortex call can be found again.</p></div></li>
+  </ol>
+</section>
+
+<section class="wrap" id="analysis">
+  <h2>The result</h2>
+  <div class="tally" role="group" aria-label="Verdict summary">
+    <div class="tile pass"><b>{counts['pass']}</b><span>pass</span></div>
+    <div class="tile trust_warning"><b>{counts['trust_warning']}</b><span>warning</span></div>
+    <div class="tile fail"><b>{counts['fail']}</b><span>fail</span></div>
+  </div>
+  <div class="strip" aria-label="Verdict per question">{build_strip(d)}</div>
+  <p class="legend">Tap a question to jump to its row. Of {total} questions, {counts['pass']} pass, {counts['trust_warning']} carry a warning, {counts['fail']} fail.</p>
+
+  <article class="lead" id="finding">
+    <h3>The lead finding: Q04, the June conversion rate</h3>
+    <dl class="pair big">
+      <div class="bad"><dt>Cortex answered</dt><dd>{pct(got4)}</dd></div>
+      <div class="good"><dt>Expected</dt><dd>{pct(exp4)}</dd></div>
+    </dl>
+    <p>Cortex filtered the date twice: once on <code>sessions.session_date</code> and again on <code>bookings.booking_date</code>. The second filter keeps only the sessions that have a June booking, so the denominator drops and the rate inflates.</p>
+    <p class="calc">{dec['num']:,} confirmed bookings &divide; {dec['sess_booked']:,} sessions that have a June booking (including {dec['sess_cancelled']:,} sessions whose booking was cancelled) = {pct(dec['num'] / dec['sess_booked'])}. The right denominator is all {dec['sess_all']:,} June sessions: {dec['num']:,} &divide; {dec['sess_all']:,} = {pct(dec['num'] / dec['sess_all'])}.</p>
+    <p class="codelabel">SQL generated by Cortex Analyst <span class="req">request <code class="rid" tabindex="0" role="button" title="{esc(q4['request_id'])}" data-full="{esc(q4['request_id'])}" data-short="{esc(short_id(q4['request_id']))}">{esc(short_id(q4['request_id']))}</code></span></p>
+    <pre class="sql"><code>{sql_html(sql4, mark=True)}</code></pre>
+    <p class="key"><mark class="ok">session filter</mark> keeps June sessions. <mark class="bad">booking filter</mark> is the extra one.</p>
+    <p class="codelabel">Same metric with the session-date filter only</p>
+    <pre class="sql fix"><code>{sql_html(fix4, mark=False)}</code></pre>
+    <p class="fixres"><b>{pct(truth4)}</b> <span>matches the expected answer {pct(exp4)}. Recomputed from the seed data in the dbt build.</span></p>
+    {sib_txt}
+  </article>
+</section>
+
+<section class="wrap" id="questions">
+  <h2>All {total} questions</h2>
+  <div class="filters" role="group" aria-label="Filter by verdict">
+    <button type="button" class="chip on" data-f="all">All {total}</button>
+    <button type="button" class="chip fail" data-f="fail">Fail {counts['fail']}</button>
+    <button type="button" class="chip trust_warning" data-f="trust_warning">Warning {counts['trust_warning']}</button>
+    <button type="button" class="chip pass" data-f="pass">Pass {counts['pass']}</button>
+  </div>
+  <div class="cards">{build_cards(d)}
+  </div>
+</section>
+
+<section class="wrap" id="cta">
+  <div class="cta">
+    <h2>Run this check on your own data</h2>
+    <p>Trust Sprint: {CTA_DAYS} days, fixed scope, from {CTA_PRICE}. I write the question pack with your owners, run it against your Cortex Analyst or semantic layer, and hand back verdicts, reasons and fixes like the Q04 one above.</p>
+    <div class="yg">
+      <div><h3>What you provide</h3><ul><li>Read access to the Snowflake account</li><li>20-50 business questions</li><li>A named owner per metric</li></ul></div>
+      <div><h3>What you get</h3><ul><li>The question pack with expected answers</li><li>Pass, warning or fail per question, with reasons</li><li>The fixes for each failure</li><li>A written readiness report</li></ul></div>
+    </div>
+    <p class="terms">{CTA_DAYS} working days, fixed scope, from {CTA_PRICE}.</p>
+    <p><a class="btn solid" href="{CTA_URL}">Book a scoping call</a></p>
+    <p class="alt"><a href="https://simonsangla.com/en/sample-report">Not ready for a call? See a sample report</a></p>
+  </div>
+</section>
+</main>
+
+<footer class="wrap foot">
+  <p><a href="{SITE_HOME}">{FOOTER}</a></p>
+  <p class="small">The dataset is fictional. The Cortex Analyst answers, SQL and request IDs are from one real run on {run_date}.</p>
+</footer>
+<script>{JS}</script>
+</body>
+</html>
+"""
+
+
+CSS = r"""
+:root{
+  color-scheme:light dark;
+  --bg:#ffffff;--ink:#0f1d2e;--muted:#4a5768;--hair:#d9e0e8;--tint:#f2f5f8;
+  --snow:#1668a6;--ice:#eaf3fb;
+  --pass:#2f6b4f;--pass-bg:#e8f2ec;
+  --warn:#8a5a00;--warn-bg:#fbf1dc;
+  --fail:#9e3b2e;--fail-bg:#f9e9e6;
+  --code-bg:#0f1d2e;--code-ink:#dbe6f2;--code-dim:#8fa3ba;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0a1420;--ink:#e8eef5;--muted:#9fb0c3;--hair:#22324a;--tint:#102034;
+  --snow:#5db4ee;--ice:#0d2236;
+  --pass:#6cc59a;--pass-bg:#10281d;
+  --warn:#e5b758;--warn-bg:#2a2108;
+  --fail:#f09a8b;--fail-bg:#2e1511;
+  --code-bg:#07101a;--code-ink:#dbe6f2;--code-dim:#7f93ab;
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{width:100%;max-width:760px;margin:0 auto;padding-left:16px;padding-right:16px}
+a{color:var(--snow);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--snow);outline-offset:2px;border-radius:3px}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--bg);padding:8px 12px;z-index:10}
+.skip:focus{left:8px;top:8px}
+h1,h2,h3{font-weight:500;letter-spacing:-.02em;line-height:1.2;margin:0}
+h2{font-size:1.5rem;margin-bottom:20px}
+h3{font-size:1.0625rem;letter-spacing:-.01em;font-weight:600}
+p{margin:0 0 12px}
+code,pre{font-family:var(--mono)}
+code{font-size:.9em}
+section{padding-top:56px}
+
+.top{border-bottom:1px solid var(--hair);position:sticky;top:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);z-index:5}
+.bar{display:flex;justify-content:space-between;align-items:center;min-height:48px;gap:12px}
+.brand{font-weight:600;color:var(--ink);text-decoration:none;font-size:.9375rem}
+.bar nav{display:flex;gap:16px;font-size:.875rem}
+.bar nav a{color:var(--muted);text-decoration:none}
+.bar nav a:hover{color:var(--ink)}
+@media(max-width:480px){.bar nav a:first-child{display:none}}
+
+.hero{padding-top:40px}
+h1{font-size:clamp(1.75rem,6.4vw,2.75rem);letter-spacing:-.03em;line-height:1.12;max-width:20em}
+.duel{margin:32px 0 16px;padding:16px;border:1px solid var(--hair);border-radius:var(--r);background:var(--ice)}
+.duel .row{display:grid;grid-template-columns:1fr auto;grid-template-areas:"who val" "track track";gap:4px 12px;align-items:baseline}
+.duel .row+.row{margin-top:16px}
+.who{grid-area:who;font-size:.875rem;color:var(--muted)}
+.val{grid-area:val;font:500 1.5rem/1 var(--mono);font-variant-numeric:tabular-nums}
+.track{grid-area:track;display:block;height:14px;border-radius:7px;background:color-mix(in srgb,var(--hair) 70%,transparent);overflow:hidden}
+.fill{display:block;height:100%;width:var(--w);border-radius:7px;transform-origin:left;animation:grow .9s cubic-bezier(.2,.7,.2,1) .15s both}
+.wrong .fill{background:var(--fail)}.wrong .val{color:var(--fail)}
+.right .fill{background:var(--pass)}.right .val{color:var(--pass)}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.stamp{font-weight:500;margin-top:20px}
+.badge{display:inline-block;margin:0 0 14px;padding:4px 10px;border:1px solid var(--hair);border-radius:999px;font:500 .75rem/1.4 'IBM Plex Mono',monospace;color:var(--muted)}
+.fair{margin-top:16px;color:var(--muted);font-size:.9375rem}
+
+.stack{color:var(--muted);font-size:.9375rem}
+.jump{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 20px;border-radius:var(--r);border:1px solid var(--ink);font-weight:500;text-decoration:none;color:var(--bg);background:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--hair)}
+.btn.solid{background:var(--snow);border-color:var(--snow);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .btn.solid{color:#04121f}}
+.btn:hover{filter:brightness(1.08)}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.steps li{display:grid;grid-template-columns:32px 1fr;gap:12px;padding:20px 0;border-top:1px solid var(--hair)}
+.steps li:last-child{border-bottom:1px solid var(--hair)}
+.n{width:28px;height:28px;border-radius:50%;background:var(--ice);color:var(--snow);display:grid;place-items:center;font:500 .875rem var(--mono);border:1px solid var(--hair)}
+.steps h3{margin-bottom:6px}.steps p{margin:0;color:var(--muted)}
+.t{font-weight:600}.t.pass{color:var(--pass)}.t.trust_warning{color:var(--warn)}.t.fail{color:var(--fail)}
+
+.tally{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{padding:16px 12px;border-radius:var(--r);border:1px solid var(--hair)}
+.tile b{display:block;font:500 2.5rem/1 var(--mono);font-variant-numeric:tabular-nums}
+.tile span{font-size:.9375rem;color:var(--muted)}
+.tile.pass{background:var(--pass-bg)}.tile.pass b{color:var(--pass)}
+.tile.trust_warning{background:var(--warn-bg)}.tile.trust_warning b{color:var(--warn)}
+.tile.fail{background:var(--fail-bg)}.tile.fail b{color:var(--fail)}
+.strip{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-top:12px}
+.cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:44px;border-radius:5px;text-decoration:none;font-size:.625rem;line-height:1.1;color:#fff}
+.cell b{font:500 .6875rem var(--mono)}.cell i{font-style:normal;font-size:.75rem}
+.cell.pass{background:var(--pass)}.cell.trust_warning{background:var(--warn)}.cell.fail{background:var(--fail)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .cell{color:#07101a}}
+.legend{font-size:.875rem;color:var(--muted);margin-top:10px}
+
+.lead{margin-top:32px;padding:20px 16px;border:1px solid var(--snow);border-radius:var(--r);background:var(--bg);box-shadow:inset 4px 0 0 var(--snow)}
+.lead h3{font-size:1.25rem;margin-bottom:16px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 16px}
+.pair dt{font-size:.8125rem;color:var(--muted)}
+.pair dd{margin:2px 0 0;font:500 1.0625rem/1.3 var(--mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.pair.big dd{font-size:clamp(1.75rem,8vw,2.5rem);line-height:1.1}
+.pair .bad dd{color:var(--fail)}.pair .good dd{color:var(--pass)}
+.calc{font-size:.9375rem;color:var(--muted)}
+.codelabel{margin:20px 0 6px;font-size:.875rem;font-weight:500;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px}
+.req{font-weight:400;color:var(--muted)}
+pre.sql{margin:0;padding:14px 16px;background:var(--code-bg);color:var(--code-ink);border-radius:var(--r);font-size:.8125rem;line-height:1.7;-webkit-overflow-scrolling:touch}
+pre.sql code{font-size:inherit;white-space:pre-wrap;overflow-wrap:anywhere}
+pre.sql mark{background:transparent;color:inherit;border-radius:3px;padding:1px 3px;margin:0 -3px}
+pre.sql mark.bad{background:rgba(240,120,100,.28);box-shadow:0 0 0 1px rgba(240,140,120,.7)}
+pre.sql mark.ok{background:rgba(108,197,154,.2)}
+.key{font-size:.8125rem;color:var(--muted);margin-top:8px}
+.key mark{padding:1px 6px;border-radius:3px}
+.key mark.ok{background:var(--pass-bg);color:var(--pass)}.key mark.bad{background:var(--fail-bg);color:var(--fail)}
+.fixres{margin-top:10px}.fixres b{font:500 1.25rem var(--mono);color:var(--pass)}.fixres span{color:var(--muted);font-size:.9375rem}
+.note{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--hair);font-size:.9375rem;color:var(--muted)}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--hair);background:transparent;color:var(--ink);font:500 .875rem var(--sans);cursor:pointer}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cards{display:grid;gap:12px}
+.q{border:1px solid var(--hair);border-radius:var(--r);padding:16px;scroll-margin-top:64px;border-left-width:4px}
+.q.pass{border-left-color:var(--pass)}.q.trust_warning{border-left-color:var(--warn)}.q.fail{border-left-color:var(--fail)}
+.q[hidden]{display:none}
+.q header{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:8px}
+.qid{font:500 .875rem var(--mono)}
+.owner{font-size:.8125rem;color:var(--muted);margin-left:auto}
+.badge{font-size:.8125rem;font-weight:600;padding:2px 10px;border-radius:12px}
+.badge.pass{background:var(--pass-bg);color:var(--pass)}.badge.trust_warning{background:var(--warn-bg);color:var(--warn)}.badge.fail{background:var(--fail-bg);color:var(--fail)}
+.q h3{font-weight:500;margin-bottom:12px}
+.q .pair{margin-bottom:12px;padding:12px;background:var(--tint);border-radius:6px}
+.exp.none,.got.none{font-family:var(--sans);font-size:.9375rem;font-weight:500;color:var(--muted)}
+.q.fail .got.value{color:var(--fail)}
+.reason{font-size:.9375rem;color:var(--ink);margin-bottom:10px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8125rem;color:var(--muted);margin:0}
+.rid{font-family:var(--mono);font-size:.8125rem;color:var(--snow);cursor:pointer;word-break:break-all;border-bottom:1px dotted var(--snow)}
+.sqlbox{margin-top:12px}
+.sqlbox summary{cursor:pointer;font-size:.875rem;color:var(--snow);min-height:32px;display:flex;align-items:center}
+.sqlbox pre{margin-top:6px}
+
+.cta{padding:28px 20px;border-radius:var(--r);background:var(--ink);color:var(--bg)}
+.cta h2{margin-bottom:12px}.cta p{color:color-mix(in srgb,var(--bg) 82%,var(--ink))}
+.cta .btn.solid{margin-top:4px}
+.cta .yg{display:grid;gap:16px;margin:16px 0}
+.cta .yg h3{font-size:1rem;margin:0 0 6px}.cta .yg ul{margin:0;padding-left:18px}
+.cta .terms{font-weight:500}
+.cta .alt{margin-top:14px;font-size:.9375rem}.cta .alt a{color:inherit;text-decoration:underline}
+@media(min-width:720px){.cta .yg{grid-template-columns:1fr 1fr}}
+.foot{padding-top:48px;padding-bottom:48px}
+.foot p{margin-bottom:6px}.foot a{color:var(--ink);font-weight:500;text-decoration:none}
+.small{font-size:.8125rem;color:var(--muted)}
+
+@media(max-width:480px){pre.sql{padding:10px;font-size:.65rem}.lead{padding:20px 12px}}
+@media(min-width:640px){
+  .wrap{padding-left:24px;padding-right:24px}
+  section{padding-top:72px}
+  .duel{padding:24px}
+  .duel .row{grid-template-columns:11rem 1fr 5.5rem;grid-template-areas:"who track val";align-items:center}
+  .val{text-align:right}
+  .lead{padding:28px}
+  .cta{padding:40px}
+  .pair{gap:24px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.fill{animation:none}}
+"""
+
+JS = r"""
+(function(){
+  var chips=document.querySelectorAll('.chip'),cards=document.querySelectorAll('.q');
+  chips.forEach(function(c){c.addEventListener('click',function(){
+    var f=c.getAttribute('data-f');
+    chips.forEach(function(x){x.classList.toggle('on',x===c)});
+    cards.forEach(function(q){q.hidden=!(f==='all'||q.getAttribute('data-verdict')===f)});
+  })});
+  function toggle(el){var full=el.getAttribute('data-full');el.textContent=el.textContent===full?el.getAttribute('data-short'):full}
+  document.querySelectorAll('.rid').forEach(function(el){
+    el.addEventListener('click',function(){toggle(el)});
+    el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(el)}});
+  });
+  if(location.hash){var t=document.querySelector(location.hash);if(t&&t.hidden)t.hidden=false}
+})();
+"""
+
+
+# ------------------------------------------------------------- OG card ----
+def build_og(d: dict) -> str:
+    q4 = next(v for v in d["verdicts"] if v["question_id"] == "Q04")
+    got4 = float(q4["answer_value"])
+    exp4 = float(d["pack"]["Q04"]["expected_answer"])
+    run_date = pretty_date(max(str(v["run_ts"]) for v in d["verdicts"]))
+    counts = {k: d["summary"].get(k, (0, ""))[0] for k in VERDICT_ORDER}
+    return f"""<!doctype html><html><head><meta charset="utf-8"><style>
+*{{box-sizing:border-box;margin:0}}
+body{{width:1200px;height:630px;background:#ffffff;color:#0f1d2e;font-family:"IBM Plex Sans",-apple-system,"Helvetica Neue",Arial,sans-serif;padding:56px 72px;display:flex;flex-direction:column;justify-content:space-between;border-top:12px solid #1668a6}}
+h1{{font-weight:500;font-size:58px;line-height:1.1;letter-spacing:-1.5px;max-width:980px}}
+.row{{display:flex;align-items:center;gap:24px;margin-top:18px}}
+.who{{width:250px;font-size:24px;color:#4a5768}}
+.track{{flex:1;height:30px;border-radius:15px;background:#e6ecf2;overflow:hidden}}
+.fill{{height:100%;border-radius:15px}}
+.val{{width:150px;text-align:right;font-family:"IBM Plex Mono",Menlo,monospace;font-size:38px;font-weight:500}}
+.foot{{display:flex;justify-content:space-between;font-size:24px;color:#4a5768}}
+.foot b{{color:#0f1d2e;font-weight:600}}
+</style></head><body>
+<div><h1>I asked Cortex Analyst for the June conversion rate. It said {round(got4*100)}%. The right answer was {round(exp4*100)}%.</h1>
+<div style="margin-top:36px">
+<div class="row"><span class="who">Cortex Analyst said</span><span class="track"><div class="fill" style="width:{got4*100:.2f}%;background:#9e3b2e"></div></span><span class="val" style="color:#9e3b2e">{pct(got4)}</span></div>
+<div class="row"><span class="who">The right answer</span><span class="track"><div class="fill" style="width:{exp4*100:.2f}%;background:#2f6b4f"></div></span><span class="val" style="color:#2f6b4f">{pct(exp4)}</span></div></div></div>
+<div class="foot"><span>Fictional data. Real Cortex Analyst run, {run_date}. {counts['pass']} pass, {counts['trust_warning']} warning, {counts['fail']} fail.</span><b>Simon Sangla</b></div>
+</body></html>"""
+
+
+OG_JS = r"""
+const path = require('path');
+const dirs = require('fs').readdirSync(path.join(process.env.HOME, '.npm/_npx'));
+let pw = null;
+for (const d of dirs) {
+  try { pw = require(path.join(process.env.HOME, '.npm/_npx', d, 'node_modules/playwright-core')); break; } catch (e) {}
+}
+if (!pw) { console.error('playwright-core not found in ~/.npm/_npx'); process.exit(2); }
+(async () => {
+  const b = await pw.chromium.launch({ channel: 'chrome', headless: true });
+  const p = await b.newPage({ viewport: { width: 1200, height: 630 } });
+  await p.goto('file://' + process.argv[2]);
+  await p.waitForTimeout(500);
+  await p.screenshot({ path: process.argv[3] });
+  await b.close();
+})();
+"""
+
+
+def render_og(card: Path, out: Path) -> None:
+    js = ROOT / "scripts" / ".og_render.js"
+    js.write_text(OG_JS, encoding="utf-8")
+    try:
+        subprocess.run(["node", str(js), str(card), str(out)], check=True)
+    finally:
+        js.unlink(missing_ok=True)
+
+
+def main() -> None:
+    d = load()
+    APP.mkdir(exist_ok=True)
+    (APP / "index.html").write_text(build_page(d), encoding="utf-8")
+    card = ROOT / "scripts" / "og-card.html"
+    card.write_text(build_og(d), encoding="utf-8")
+    print(f"wrote {APP / 'index.html'}")
+    if "--og" in sys.argv:
+        render_og(card, APP / "og.png")
+        print(f"wrote {APP / 'og.png'}")
+
+
+if __name__ == "__main__":
+    main()

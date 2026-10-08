@@ -1,13 +1,14 @@
 -- One verdict per business question: pass | fail | trust_warning, each with a reason.
 --   pass          the answer matches the expected answer (or a refusal was the right answer) and the metric is safe
---   trust_warning the number may be right but the way it was produced should not be trusted
+--   trust_warning the number may be right but the way it was produced should not be trusted;
+--                 also an analyst clarification request on a metric the view does not define
 --   fail          wrong value, no answer, an error, or an invented number for an undefined metric
 with joined as (
     select
         q.question_id, q.question, q.metric_key, q.owner, q.set_name, q.expect_refusal,
         q.expected_answer, q.tolerance,
         t.truth_value,
-        r.status as metric_status, r.has_zero_guard,
+        r.status as metric_status, r.has_zero_guard, r.note as registry_note,
         a.generated_sql, a.answer_value, a.request_id, a.run_ts, a.analyst_text, a.execution_error, a.row_count,
         try_cast(a.answer_value as double)  as got_num,
         try_cast(q.expected_answer as double) as exp_num
@@ -26,6 +27,7 @@ judged as (
             when expect_refusal and execution_error is not null then 'fail'
             when expect_refusal and answer_value is not null then 'fail'
             when expect_refusal then 'trust_warning'
+            when generated_sql is null and execution_error is null and metric_status = 'not_in_view' then 'trust_warning'
             when generated_sql is null then 'fail'
             when execution_error is not null then 'fail'
             when answer_value is null then 'fail'
@@ -47,7 +49,10 @@ select
         when verdict = 'pass' then 'Value matches the expected answer and the metric is governed by the semantic view.'
         when expect_refusal and execution_error is not null then 'Undefined question answered with SQL that errors: ' || execution_error
         when expect_refusal and answer_value is not null then 'Invented a value (' || answer_value || ') for a question the data cannot answer.'
-        when expect_refusal then 'No value returned (empty result) and no statement that the metric is undefined; the ratio has no zero-guard, so a slice with no sessions is not handled.'
+        when expect_refusal then 'Empty result, with no statement that the metric is undefined for this slice.'
+        when generated_sql is null and execution_error is null and metric_status = 'not_in_view'
+            then 'Asked for clarification: ''' || replace(metric_key, '_', ' ') || ''' is not defined in the semantic view (expected '
+                 || expected_answer || ' assumes ' || replace(split_part(split_part(registry_note, '; ', 2), ' is an', 1), '<>', chr(8800)) || ')'
         when generated_sql is null then 'No SQL generated, the analyst asked for clarification instead: ' || substr(analyst_text, 1, 160)
         when execution_error is not null then 'Generated SQL failed: ' || execution_error
         when answer_value is null then 'Generated SQL returned no rows.'
