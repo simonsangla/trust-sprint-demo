@@ -1,0 +1,12 @@
+name: trust_sprint_demo
+version: "1.0.0"
+config-version: 2
+profile: trust_sprint_demo
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+target-path: target
+models:
+  trust_sprint_demo:
+    staging: {+materialized: view}
+    marts: {+materialized: table}

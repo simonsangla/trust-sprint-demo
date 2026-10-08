@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: fct_metric_truth
+    description: >
+      Expected answer re-derived from the staging tables, independently of the number typed into
+      question_pack. Disagreement fails assert_question_pack_matches_data.
+    columns:
+      - name: question_id
+        data_tests: [unique, not_null]
+      - name: truth_value
+        data_tests: [not_null]
+  - name: fct_question_verdicts
+    description: >
+      One row per business question: pass, fail or trust_warning, with a plain-language reason.
+      A fail or trust_warning is a finding about the analyst, not a build error: the build stays green
+      when the analyst is wrong, and the verdict column says so.
+    columns:
+      - name: question_id
+        data_tests: [unique, not_null]
+      - name: verdict
+        data_tests:
+          - not_null
+          - accepted_values: {arguments: {values: [pass, fail, trust_warning]}}
+      - name: reason
+        description: Why the verdict was given. Never empty.
+        data_tests: [not_null]
+      - name: owner
+        data_tests: [not_null]
+  - name: fct_verdict_summary
+    description: Count of questions per verdict.
+    columns:
+      - name: verdict
+        data_tests: [unique, not_null]

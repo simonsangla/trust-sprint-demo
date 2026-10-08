@@ -1,0 +1,8 @@
+# Local demo profile: DuckDB, no credentials.
+trust_sprint_demo:
+  target: duckdb
+  outputs:
+    duckdb:
+      type: duckdb
+      path: trust_sprint_demo.duckdb
+      threads: 2

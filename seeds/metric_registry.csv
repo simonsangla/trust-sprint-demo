@@ -1,0 +1,9 @@
+metric_key,status,has_zero_guard,note
+bookings,governed,n/a,COUNT of confirmed bookings in the semantic view
+revenue,governed,n/a,SUM of amount of confirmed bookings in the semantic view
+active_users,governed,n/a,COUNT DISTINCT user_id over sessions in the semantic view
+conversion_rate,governed,false,bookings / session_count with no NULLIF or zero-guard (on purpose)
+top_channel_by_revenue,governed,n/a,revenue sliced by the sessions.channel dimension
+avg_booking_value,not_in_view,n/a,no metric in the semantic view; the analyst must improvise
+paying_customers,not_in_view,n/a,no metric in the semantic view; plan <> free is an interpretation
+churn_rate,undefined,n/a,no churn metric and no data to define one; the correct answer is a refusal

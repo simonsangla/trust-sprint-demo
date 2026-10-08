@@ -1,0 +1,11 @@
+question_id,question,metric_key,date_from,date_to,channel,expected_answer,tolerance,owner,rederived_by,as_of,set_name,expect_refusal
+Q01,How many bookings did we have in March 2026?,bookings,2026-03-01,2026-03-31,,22,0,head_of_growth,analytics_engineer,2026-06-30,build,false
+Q02,What was total revenue in Q1 2026?,revenue,2026-01-01,2026-03-31,,6983.0,0.01,finance_lead,analytics_engineer,2026-06-30,build,false
+Q03,How many active users did we have in April 2026?,active_users,2026-04-01,2026-04-30,,196,0,product_lead,analytics_engineer,2026-06-30,build,false
+Q04,What was the booking conversion rate in June 2026?,conversion_rate,2026-06-01,2026-06-30,,0.0809,0.0005,head_of_growth,analytics_engineer,2026-06-30,build,false
+Q05,What was the booking conversion rate for the organic channel in the first half of 2026?,conversion_rate,2026-01-01,2026-06-30,organic,0.0879,0.0005,head_of_growth,analytics_engineer,2026-06-30,build,false
+Q06,What was the booking conversion rate for the partner channel in January 2026?,conversion_rate,2026-01-01,2026-01-31,partner,UNDEFINED,0,head_of_growth,analytics_engineer,2026-06-30,holdout,true
+Q07,Which acquisition channel generated the most revenue in the first half of 2026?,top_channel_by_revenue,2026-01-01,2026-06-30,,organic,0,finance_lead,analytics_engineer,2026-06-30,holdout,false
+Q08,What was the average booking value in the first half of 2026?,avg_booking_value,2026-01-01,2026-06-30,,97.0,0.01,finance_lead,analytics_engineer,2026-06-30,build,false
+Q09,How many paying customers do we have?,paying_customers,,,,134,0,product_lead,analytics_engineer,2026-06-30,holdout,false
+Q10,What is our customer churn rate?,churn_rate,,,,UNDEFINED,0,product_lead,analytics_engineer,2026-06-30,build,true

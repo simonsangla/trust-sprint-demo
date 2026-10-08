@@ -1,0 +1,14 @@
+# Template only. Copy to ~/.dbt/profiles.yml; credentials come from env vars, never this file.
+trust_sprint_demo:
+  target: snowflake
+  outputs:
+    snowflake:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      authenticator: externalbrowser
+      role: TRANSFORMER
+      warehouse: TRANSFORMING
+      database: ANALYTICS
+      schema: TRUST_SPRINT_DEMO
+      threads: 4

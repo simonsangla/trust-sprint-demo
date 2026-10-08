@@ -1,0 +1,66 @@
+version: 2
+models:
+  - name: stg_users
+    description: Fictional users.
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: plan
+        data_tests:
+          - accepted_values: {arguments: {values: [free, pro, team]}}
+  - name: stg_sessions
+    description: Fictional website sessions.
+    columns:
+      - name: session_id
+        data_tests: [unique, not_null]
+      - name: user_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('stg_users'), field: user_id}}
+      - name: channel
+        data_tests:
+          - accepted_values: {arguments: {values: [organic, paid, email, referral, partner]}}
+  - name: stg_bookings
+    description: Fictional bookings; cancelled ones are kept and flagged, not deleted.
+    columns:
+      - name: booking_id
+        data_tests: [unique, not_null]
+      - name: session_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('stg_sessions'), field: session_id}}
+      - name: status
+        data_tests:
+          - accepted_values: {arguments: {values: [confirmed, cancelled]}}
+  - name: stg_question_pack
+    description: The ground-truth question set with owner and independent re-derivation.
+    columns:
+      - name: question_id
+        data_tests: [unique, not_null]
+      - name: owner
+        data_tests: [not_null]
+      - name: rederived_by
+        data_tests: [not_null]
+      - name: metric_key
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('stg_metric_registry'), field: metric_key}}
+  - name: stg_cortex_answers
+    description: Frozen live Cortex Analyst answers, one per question.
+    columns:
+      - name: question_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships: {arguments: {to: ref('stg_question_pack'), field: question_id}}
+      - name: request_id
+        description: Cortex Analyst request id; proof the call happened.
+        data_tests: [unique, not_null]
+  - name: stg_metric_registry
+    description: What the semantic view defines.
+    columns:
+      - name: metric_key
+        data_tests: [unique, not_null]
+      - name: status
+        data_tests:
+          - accepted_values: {arguments: {values: [governed, not_in_view, undefined]}}
