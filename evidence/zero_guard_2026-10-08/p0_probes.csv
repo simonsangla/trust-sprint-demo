@@ -1,0 +1,7 @@
+probe,sql,outcome,result,ts
+"P1 ratio, no dimension",SELECT * FROM SEMANTIC_VIEW(MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV METRICS conversion_rate WHERE sessions.channel = 'partner' AND sessions.session_date >= '2026-01-01' AND sessions.session_date <= '2026-01-31'),error,100051 (22012): Division by zero,2026-10-08T17:54:39+00:00
+P2 ratio by channel,SELECT * FROM SEMANTIC_VIEW(MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV DIMENSIONS sessions.channel METRICS conversion_rate WHERE sessions.channel = 'partner' AND sessions.session_date >= '2026-01-01' AND sessions.session_date <= '2026-01-31'),no_rows,[],2026-10-08T17:54:40+00:00
+P3 components,"SELECT * FROM SEMANTIC_VIEW(MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV METRICS bookings.bookings, sessions.session_count WHERE sessions.channel = 'partner' AND sessions.session_date >= '2026-01-01' AND sessions.session_date <= '2026-01-31')",value,"[(0, 0)]",2026-10-08T17:54:40+00:00
+P4 snowflake 0/0,SELECT 0/0,error,100051 (22012): Division by zero,2026-10-08T17:54:40+00:00
+"P5 snowflake 0/NULLIF(0,0)","SELECT 0/NULLIF(0,0)",null,"[(None,)]",2026-10-08T17:54:41+00:00
+P6 control: ratio partner March,SELECT * FROM SEMANTIC_VIEW(MISSION_OS_DB.TRUST_DEMO_DEV.TRUST_DEMO_SV METRICS conversion_rate WHERE sessions.channel = 'partner' AND sessions.session_date >= '2026-03-01' AND sessions.session_date <= '2026-03-31'),value,"[(Decimal('0.062500'),)]",2026-10-08T17:54:41+00:00
