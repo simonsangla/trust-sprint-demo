@@ -1,0 +1,21 @@
+q,run,http,kind,value,text,request_id
+Q09,1,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,e0b5ea70-291b-4477-a970-eda96c64a87c
+Q09,2,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,b8fc4b98-2820-40c5-876b-7b35606a88d8
+Q09,3,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,c3779fbe-5e83-4706-97ce-7b527725451a
+Q09,4,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,0c8f2d04-cb84-4ad7-8479-81ab771b04cd
+Q09,5,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,1a8a315b-477d-450e-9559-24005b0dddd3
+Q09,6,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,f6245a8b-b9e8-4fc0-a9bc-60f971db78b8
+Q09,7,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,3afa8273-78f8-441d-823f-0b794d3b3be0
+Q09,8,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,4868b92c-212a-4afd-865b-e9fc63b5720e
+Q09,9,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,1d627b3a-1204-4f02-925b-54d693ef202f
+Q09,10,200,sql,"(134,)",This is our interpretation of your question: How many paying customers do we have?,626f2ee6-486c-42c0-8b72-1b47a694184a
+Q10,1,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,16f9ad6e-7432-42f6-9c5e-415fcfab2eab
+Q10,2,200,sql,"(300, 140, 160, Decimal('0.466667'))","This is our interpretation of your question: What is our customer churn rate? Since there is no explicit churn event table, I will approxima",ea390b35-2c30-4e49-8eaf-b9f93dd1858a
+Q10,3,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,930b47e8-dd05-4e50-902f-cf1b248c77e2
+Q10,4,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,5a42f141-0996-47c4-8c30-b2481a99eef5
+Q10,5,200,sql,"(300, 140, 160, Decimal('0.466667'))","This is our interpretation of your question: What is our customer churn rate? Since there is no explicit churn event table, I will approxima",d463347e-2437-4bbc-a5df-bec4de29f524
+Q10,6,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,ecac4492-c95f-4a91-82b5-f87040e1a9f5
+Q10,7,200,sql,"(300, 140, 160, Decimal('0.466667'))","This is our interpretation of your question: What is our customer churn rate? Since there is no explicit churn event table, I will approxima",5524ca47-abcc-401b-b721-327372dd1a8b
+Q10,8,200,sql,"(300, 140, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,b6118a34-cccb-48c0-bf3f-ef80f7e098b4
+Q10,9,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,d40eb666-3fac-4cf8-b768-e27dbb531e9d
+Q10,10,200,sql,"(300, 140, 160, Decimal('0.466667'))",This is our interpretation of your question: What is our customer churn rate? Interpreted as: the proportion of users who have never made a ,aa1ae4a8-dca1-4a14-b943-3eb3af89711c

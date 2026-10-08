@@ -1,0 +1,21 @@
+q,run,http,kind,value,text,request_id
+Q04,1,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,ad29da12-225c-43e3-abcd-9d402745287e
+Q04,2,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,4e824323-f083-4566-af2a-84fd04e8f149
+Q04,3,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,88d0b1be-d8d1-4f1b-9518-611686f550cb
+Q04,4,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,742a23c3-dc7f-4d72-b638-35b417d9a4c7
+Q04,5,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,59c587de-0706-4501-a02e-8b684f0e7c87
+Q06,1,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,b77148ce-79ab-47ee-b151-d204f02a1d08
+Q06,2,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,e262a458-7d5b-4175-9e79-14c0973b551e
+Q06,3,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,aa92855b-bbdc-4599-9782-0b085ae1357b
+Q06,4,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,cc2f9adb-411f-4ac5-831c-84223dd883c2
+Q06,5,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,f5719dcb-2155-4a9a-976b-3b5df1ef8db7
+Q09,1,200,sql,"(286,)","This is our interpretation of your question: How many paying customers (users with plan 'pro' or 'team', i.e., non-free plans) do we have?",654374b4-323b-4603-bc26-0f0bc865315a
+Q09,2,200,sql,"(286,)",This is our interpretation of your question: How many paying customers do we have? Interpreted as: count of distinct users who have at least,637921f6-5b3e-4fdc-be41-115c0c00ef53
+Q09,3,200,sql,"(286,)",This is our interpretation of your question: How many paying customers do we have? Interpreted as: count of distinct users who have at least,bea862ee-74b5-40a5-8308-cc053b1a62c0
+Q09,4,200,sql,"(286,)",This is our interpretation of your question: How many paying customers do we have? Interpreted as: count of distinct users who have at least,281df3f5-659c-4a95-bede-643837efd6e2
+Q09,5,200,sql,"(160,)",This is our interpretation of your question: How many paying customers do we have? Interpreted as: count of distinct users who have at least,89608ed5-f369-4d85-8e38-2369a84a1ac7
+Q10,1,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",e5ff36c9-1e42-4f72-9bc6-01961b222d14
+Q10,2,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",59096782-8607-4fb6-a010-05a41311e8d4
+Q10,3,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",8d66a6ff-71b2-4f26-944f-696a26f1b349
+Q10,4,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",11c7fdc0-1087-43c6-bfa5-737d1a544761
+Q10,5,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",229ea591-e57d-4c64-808a-b5539f0cbad0

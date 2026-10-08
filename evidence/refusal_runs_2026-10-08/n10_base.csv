@@ -1,0 +1,41 @@
+q,run,http,kind,value,text,request_id
+Q04,1,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,8c77db15-dd34-421d-b183-22888fffc061
+Q04,2,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,0c9e8e0d-2317-407b-8b52-8d705e163f9e
+Q04,3,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,436fdb94-bc74-427e-87d0-fc35039ca264
+Q04,4,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,9a4e5d0b-fff5-40fe-bcb0-603071604858
+Q04,5,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,5c9ee9fb-13a2-4ea4-9397-7566d8320869
+Q04,6,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,28b90fca-7240-439a-af35-37dca43c1af0
+Q04,7,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,bce7977e-3056-48db-8410-bb7f13262d36
+Q04,8,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,53d8c658-7d1a-4642-bcec-58c4f1b245c2
+Q04,9,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,1183002e-3154-4782-9c9a-ba7997bef701
+Q04,10,200,sql,"(Decimal('0.852632'),)",This is our interpretation of your question: What was the booking conversion rate (confirmed bookings divided by total sessions) in June 202,a65e98d8-60a5-4e3e-b249-72a1d22fd3f3
+Q06,1,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Conversion rate i,fb75a33d-5b82-46f7-ad67-e34b4deafde7
+Q06,2,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,5f459bb3-ea80-48bd-83c4-545ebb17042c
+Q06,3,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Conversion rate i,a39eab4f-f9f2-45a1-8f95-6c48fae36698
+Q06,4,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,c82d27c9-1018-404d-a4cf-c392d1815095
+Q06,5,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,825e1c1f-cfc6-4bfb-b0a7-c90c163a94f3
+Q06,6,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,1fca20c3-7ce2-48b8-b403-c9b8acd5b2c2
+Q06,7,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Conversion rate i,050ecfe2-caf6-48cb-aad8-663f475cecb8
+Q06,8,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Conversion rate i,0240c9a9-600c-435f-ad1f-5e2b841ad8c9
+Q06,9,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,f075b9d0-2f62-4977-a026-21a33c92cfa8
+Q06,10,200,sql,EMPTY,This is our interpretation of your question: What was the booking conversion rate for the partner channel in January 2026? Booking conversio,4710c985-1921-460b-8c8b-32662fe5af70
+Q09,1,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The model has a 'plan' dimension on users ",6abd6bc6-ad50-46c9-93c0-5882947d7659
+Q09,2,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The model has a 'plan' dimension on users ",305278a8-d9ff-46ad-a6fc-84f753849193
+Q09,3,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The model has a 'plan' dimension on users ",f968433a-1d31-4d06-b273-e32ad21895c3
+Q09,4,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The model has a 'plan' dimension on users ",4a157127-abb8-4d49-b7da-b3fae30ffe86
+Q09,5,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The model has a 'plan' dimension on users ",30f3b11b-1cb9-4c54-8398-c5f746eca0ef
+Q09,6,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The model has a 'plan' dimension on users ",1e05e762-3ea3-4815-be5e-8a1f734545b8
+Q09,7,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The users table has a 'plan' column with v",cabd3805-19b6-40aa-ac5d-5056dca905b1
+Q09,8,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The users table has a 'plan' column with v",484540b8-b344-4149-9eb1-5d0ebb876a56
+Q09,9,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The users table has a 'plan' column with v",c2339756-e8a1-4c15-95b7-0f9f84485de9
+Q09,10,200,suggestions,,"I'm sorry, but the question about 'paying customers' is ambiguous given the available data model. The model has a 'plan' dimension on users ",f730460d-ed21-4436-8048-f19d7774a8f8
+Q10,1,200,suggestions,,"I'm sorry, but I'm unable to calculate customer churn rate with the available data. Churn rate typically requires identifying customers who ",f1b60c5f-c238-467a-94cc-912a311fb355
+Q10,2,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",5207e72e-1010-4f47-b24c-b40ce046ded7
+Q10,3,200,suggestions,,"I'm sorry, but I'm unable to calculate customer churn rate with the available data. Churn rate typically requires identifying customers who ",4c56772a-c6f2-4b4e-ae42-4c3c1185d438
+Q10,4,200,suggestions,,"I'm sorry, but I'm unable to calculate customer churn rate with the available data. Churn rate typically requires identifying users who were",322de253-ec36-48e0-86af-81aa33550de6
+Q10,5,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",2637eefe-4ced-4ac1-b714-d116c9f5b535
+Q10,6,200,suggestions,,"I'm sorry, but I'm unable to answer this question with the available data. Customer churn rate typically requires tracking whether existing ",776af963-b031-4e07-9238-c8a76dd5da7a
+Q10,7,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",cce8cc64-a4de-4516-aef0-b0d00da75bcb
+Q10,8,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",efc0dc13-fb23-4cac-84e9-0585ffc10ca0
+Q10,9,200,suggestions,,"I'm sorry, but I'm unable to calculate customer churn rate with the available data. Churn rate typically requires identifying customers who ",0c3f4409-fd0c-4871-a2ad-69b0ce2e993c
+Q10,10,200,suggestions,,"I'm sorry, but customer churn rate cannot be calculated from the available data. Churn rate typically requires tracking whether existing cus",fb7090fb-4d4b-425f-9836-a746e0958a66
