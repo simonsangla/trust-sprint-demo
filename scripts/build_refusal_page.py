@@ -67,6 +67,13 @@ TEMPLATE = r"""<!doctype html>
 <title>Cortex refusal test</title>
 <meta name="description" content="Fictional data, real Cortex Analyst runs: the same undefined-metric question asked 20 times after each semantic view edit. Every run, its text, its SQL and its result.">
 <meta name="color-scheme" content="light">
+<meta property="og:type" content="website">
+<meta property="og:title" content="One verified query was enough to make Cortex Analyst answer a question it should decline">
+<meta property="og:description" content="Fictional data, real Cortex Analyst runs: 20 runs per semantic view edit. What it said vs what the SQL did, run by run.">
+<meta property="og:url" content="https://trustsprint.simonsangla.com/refusal/">
+<meta property="og:image" content="https://trustsprint.simonsangla.com/refusal/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
