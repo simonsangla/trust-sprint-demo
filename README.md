@@ -18,8 +18,8 @@ seeds/cortex_answers.csv  generated SQL, returned value, request id, run timesta
 | Verdict | Count | Questions |
 |---|---|---|
 | pass | 5 | Q01 bookings, Q02 revenue, Q03 active users, Q07 top channel, Q10 churn (correct refusal) |
-| trust_warning | 2 | Q06 (empty result, undefined slice), Q08 (right number, metric not in the view) |
-| fail | 3 | Q04 and Q05 (conversion rate ~10x too high), Q09 (no answer, asked for clarification) |
+| trust_warning | 3 | Q06 (empty result, undefined slice), Q08 (right number, metric not in the view), Q09 (asked for clarification, metric not in the view) |
+| fail | 2 | Q04 and Q05 (conversion rate ~10x too high) |
 
 - The semantic view defines `bookings`, `revenue`, `active_users`, `session_count`, `conversion_rate`. There is **no churn
   metric** on purpose: asking for churn must end in a refusal, and it did.
