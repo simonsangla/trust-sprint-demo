@@ -1,12 +1,14 @@
-"""E1/E2/E3 refusal experiments (mission-os#1362). DEV schema, new views only."""
+"""Usage: python scripts/run_refusal_experiments.py <out.csv>  (about 70 Cortex calls)
+E1/E2/E3 refusal experiments (mission-os#1362). DEV schema, new views only."""
 import csv, sys, collections
-sys.path.insert(0, "/Users/simonsangla/projects/trust-sprint-demo/scripts")
-sys.path.insert(0, "/private/tmp/claude-501/-Users-simonsangla-projects/27d6e16f-e4ca-41ad-83e8-ed58cbd50749/scratchpad/t1")
+from pathlib import Path
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
 from sf import connect, run
 import run_cortex as rc
 import make_refusal_views as mv
 OUT = sys.argv[1]; N = 5
-pack = {r["question_id"]: r for r in csv.DictReader(open("/Users/simonsangla/projects/trust-sprint-demo/seeds/question_pack.csv"))}
+pack = {r["question_id"]: r for r in csv.DictReader(open(HERE.parent / "seeds" / "question_pack.csv"))}
 P = "MISSION_OS_DB.TRUST_DEMO_DEV."
 CHURN = "What is our customer churn rate?"
 UNDEF = {"LTV": "What is our customer lifetime value?", "NPS": "What is our NPS?", "RET": "What is our 90-day retention rate?"}
