@@ -1,0 +1,9 @@
+# github-actions only: trust-sprint-demo has no requirements.txt / pyproject.toml / uv.lock, so a pip entry would have no manifest.
+# Add a pip entry when dependencies are pinned in a manifest.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: weekly}
+    groups:
+      actions: {patterns: ["*"]}
