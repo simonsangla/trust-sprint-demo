@@ -31,5 +31,10 @@ fragile that pass is after an edit.
 2. Q10 of the original run is a refusal with no SQL and no rows;
 3. the pinned `scripts/check_post_claims.py` passes;
 4. the same count on a copy where the E2 numeric results are replaced by refusal text goes RED, so it cannot pass vacuously.
+5. the figure the public post cites, **46.7%**: all 20 E1 SQL results are the same single value 0.466667, printed as `E1 answer 46.7% in 20 of 20 runs`;
+6. the **140 Cortex calls**: the batch has 140 rows, 140 distinct Snowflake request IDs, HTTP 200 on all (churn 80, control 20, follow-up chat 40). The 140 in the SQL result tuple `(300, 140, 160, 0.466667)` is a different number (users who never booked); it is not printed and is not the call count;
+7. `site/refusal/index.html` of the checked revision shows this proof's id (`proof_2026_10_09_refusal_text_is_not_a_refusal`), 46.7% and 140 Cortex calls; the same check on a copy without the id goes RED.
+
+**Value check:** `bash proofs/2026-10-09-refusal-text-is-not-a-refusal/value.sh 46.7 140 11 20` confirms each number appears in the `check.sh` output (read-only; used by the LinkedIn gates).
 
 **Run it:** `bash proofs/2026-10-09-refusal-text-is-not-a-refusal/check.sh` (needs only `python3`). Fictional data only.
