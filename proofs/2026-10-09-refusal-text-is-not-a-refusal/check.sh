@@ -5,6 +5,7 @@
 # computed" and how many returned SQL whose result is a number, (2) checks the Q10 refusal of the original frozen run
 # in seeds/cortex_answers.csv, (3) runs the pinned scripts/check_post_claims.py, and (4) repeats step 1 on a copy where
 # the E2 numeric results are replaced by refusal text, and requires it to go RED.
+# It also prints the two figures the public post cites (46.7%, 140 calls) and checks /refusal/ shows them with this proof id.
 # Nothing here calls Snowflake; every number is read from committed, frozen files. REF=<rev> checks another commit.
 set -uo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
@@ -50,6 +51,19 @@ e2 = [r for r in rows if r["cell"] == "churn" and r["edit"] == "E2"]
 gap = sum(bool(SAYS_NO.search(r["text"])) and r["kind"] == "sql" and bool(IS_NUMBER.match(r["value"])) for r in e2)
 print("%s E2 said no AND computed a number in the same run: %d of %d" % ("ok  " if gap == 11 else "FAIL", gap, len(e2)))
 bad += gap != 11
+# 46.7%: the answer after the one unrelated verified query (E1), parsed from the SQL result itself (last decimal of the tuple)
+e1 = [r for r in rows if r["cell"] == "churn" and r["edit"] == "E1" and r["kind"] == "sql" and IS_NUMBER.match(r["value"])]
+vals = {re.findall(r"-?\d+\.\d+", r["value"])[-1] for r in e1}
+pct = "%.1f%%" % (100 * float(next(iter(vals)))) if len(vals) == 1 else "mixed"
+ok = len(e1) == 20 and pct == "46.7%"
+print("%s E1 answer %s in %d of 20 runs (one distinct SQL result: %s)" % ("ok  " if ok else "FAIL", pct, len(e1), ", ".join(sorted(vals))))
+bad += not ok
+# 140: every row of the batch is one Cortex call with its own Snowflake request id
+ids = {r["request_id"] for r in rows}
+by = {c: sum(r["cell"] == c for r in rows) for c in ("churn", "control", "typo_followup")}
+ok = len(rows) == 140 and len(ids) == 140 and all(r["http"] == "200" for r in rows) and by == {"churn": 80, "control": 20, "typo_followup": 40}
+print("%s batch: %d Cortex calls, %d distinct request ids, HTTP 200 on all (churn %d, control %d, follow-up chat %d)" % ("ok  " if ok else "FAIL", len(rows), len(ids), by["churn"], by["control"], by["typo_followup"]))
+bad += not ok
 sys.exit(1 if bad else 0)
 PY
 
@@ -74,5 +88,14 @@ if python3 -I "$W/derive.py" "$W/mutated/$B" >"$W/mut.out" 2>&1; then
 else
   echo "ok   mutated batch rejected: $(grep -c '^FAIL' "$W/mut.out") failing lines"
 fi
+# The public page carries this proof's id and the two figures (the committed page of the checked revision).
+PID=proof_2026_10_09_refusal_text_is_not_a_refusal
+pagecheck(){ grep -q "$PID" "$1" && grep -q '46\.7%' "$1" && grep -q '140 Cortex calls' "$1"; }
+git -C "$ROOT" show "${REF:-HEAD}:site/refusal/index.html" > "$W/page.html" 2>/dev/null
+if pagecheck "$W/page.html"; then echo "ok   site/refusal/ shows $PID, 46.7% and 140 Cortex calls"
+else echo "FAIL: site/refusal/index.html lacks the proof id, 46.7% or 140 Cortex calls"; fail=1; fi
+sed "s/$PID/proof_removed/g" "$W/page.html" > "$W/page_mut.html"
+if pagecheck "$W/page_mut.html"; then echo "FAIL: the page check stayed green with the proof id removed"; fail=1
+else echo "ok   page check rejects a page without the proof id"; fi
 [ "$fail" = 0 ] || exit 1
-echo "PASS: E0 0/20 number; E1 20/20 number; E2 said no 20/20 and computed a number 11/20; E3 0/20 number; Q10 of the original run is a clean refusal; the check goes red when the E2 results are replaced"
+echo "PASS: E0 0/20 number; E1 20/20 number; E2 said no 20/20 and computed a number 11/20; E3 0/20 number; E1 answer 46.7% in 20 of 20; 140 Cortex calls in the batch; /refusal/ shows the proof id; Q10 of the original run is a clean refusal; the check goes red when the E2 results are replaced"

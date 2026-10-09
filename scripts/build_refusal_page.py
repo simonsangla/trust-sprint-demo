@@ -3,7 +3,7 @@
 Every run shown is a row of evidence/refusal_runs_2026-10-08/batch20.csv; nothing on the page is typed by hand.
     python3 scripts/build_refusal_page.py [--csv PATH]"""
 from __future__ import annotations
-import argparse, csv, html, json, sys
+import argparse, csv, html, json, re, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from refusal_outcome import outcome, gave_number  # noqa: E402
@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CSV = ROOT / "evidence" / "refusal_runs_2026-10-08" / "batch20.csv"
 OUT = ROOT / "site" / "refusal" / "index.html"
 REPO = "https://github.com/simonsangla/trust-sprint-demo"
+PROOF_ID = "proof_2026_10_09_refusal_text_is_not_a_refusal"  # exposure name in models/proofs/_proofs.yml, shown on the home page too
 CAL = "https://cal.com/simon-sangla/trust-sprint-scoping-call?ref=refusal"
 EDITS = [("E0", "Edit 0", "No verified queries"),
          ("E1", "Edit 1", "One verified query added, about paying customers"),
@@ -52,7 +53,17 @@ def main() -> int:
             f'After one unrelated verified query: a number in {summ[1][2]} of {summ[1][1]}. '
             f'Told not to approximate: the answer said no in {sum(x["o"] in ("declined","sql_refusal","said_no_number") for x in e2)} of {len(e2)}, '
             f'while the SQL computed a number in {summ[2][2]}.')
-    page = TEMPLATE.replace("__DATA__", json.dumps(data).replace("</", "<\\/")).replace("__LEDE__", lede) \
+    # Proof line, all figures recomputed here from the CSV (the proof's check.sh recounts them independently).
+    e1v = {re.findall(r"-?\d+\.\d+", r["value"])[-1] for r in rows if r["cell"] == "churn" and r["edit"] == "E1"
+           and gave_number(outcome(r)) and re.findall(r"-?\d+\.\d+", r["value"])}
+    if len(e1v) != 1:
+        sys.exit("edit 1 answers are not one value: %s" % sorted(e1v))
+    proof = (f'Proof <code>{PROOF_ID}</code>: recounted offline from the {len(rows)} Cortex calls of this batch, no Snowflake call. '
+             f'After the verified query (edit 1) the answer was {100 * float(next(iter(e1v))):.1f}% in {summ[1][2]} of {summ[1][1]} runs; '
+             f'edit 2 said no in {sum(x["o"] in ("declined","sql_refusal","said_no_number") for x in e2)} of {len(e2)} and its SQL computed a number in {summ[2][2]}. '
+             f'Re-run: <code>bash proofs/2026-10-09-refusal-text-is-not-a-refusal/check.sh</code> · '
+             f'<a href="{REPO}/tree/main/proofs/2026-10-09-refusal-text-is-not-a-refusal">proof folder</a>')
+    page = TEMPLATE.replace("__DATA__", json.dumps(data).replace("</", "<\\/")).replace("__LEDE__", lede).replace("__PROOF__", proof) \
         .replace("__REPO__", REPO).replace("__CAL__", CAL)
     OUT.parent.mkdir(parents=True, exist_ok=True); OUT.write_text(page, encoding="utf-8")
     print("wrote", OUT, "rows", len(rows), "|", summ, "| control", data["control"])
@@ -171,6 +182,7 @@ ol{margin:0;padding-left:22px;display:grid;gap:8px;max-width:62ch}
   <div><a class="btn big" href="__CAL__">Book a 20-min scoping call</a></div>
 </section>
 
+<p class="meta" id="proof">__PROOF__</p>
 <footer class="meta" id="foot"></footer>
 </main>
 <script>
