@@ -1,0 +1,73 @@
+/* Ledger theme for the dbt docs site (mission-os#1282, design C "numbers first").
+ * Tokens copied from simonsangla-site src/styles/globals.css (commit 12e74af), so the demo matches simonsangla.com.
+ * Injected by scripts/sanitize_docs.py. Light only: dbt docs has no dark mode. */
+:root {
+  --ink: #101c2b; --muted: #4a5768; --hair: #d9e0e8; --tint: #f2f5f8;
+  --green: #2f6b4f; --brick: #9e3b2e; --paper: #ffffff;
+  --sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+body, .app, .app-body, input, button { font-family: var(--sans) !important; color: var(--ink); background: var(--paper); }
+code, pre, .panel-body > p > .table:first-of-type td:last-child { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.panel-body .table td:first-child { white-space: nowrap; }
+
+/* chrome: quiet header and sidebar, hairlines instead of shadows */
+.app-header { background: var(--paper) !important; box-shadow: none !important; border-bottom: 1px solid var(--hair); }
+.app-menu { background: var(--tint) !important; border-right: 1px solid var(--hair); }
+.app-menu a, .app-menu .filetree a { color: var(--muted) !important; font-size: 13px; }
+.app-menu a.active, .app-menu a:hover { color: var(--ink) !important; }
+.app-menu .nav-tabs a, .app-menu .btn { border-radius: 6px !important; }
+a { color: var(--green); }
+a:hover { color: var(--ink); }
+.panel, .panel-default { border: 0 !important; box-shadow: none !important; background: transparent !important; }
+
+/* type: sans 500, tight, ledger rhythm */
+.panel-body h1 { font-size: 30px; font-weight: 500; letter-spacing: -0.02em; margin: 0 0 6px; }
+.panel-body h2 { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: var(--muted);
+  border-top: 1px solid var(--hair); padding-top: 22px; margin: 36px 0 14px; }
+.panel-body p, .panel-body li { font-size: 15px; line-height: 1.65; max-width: 68ch; }
+.panel-body strong { font-weight: 500; }
+
+/* ledger tables: hairlines only, numbers right-aligned in mono */
+.panel-body .table { border-collapse: collapse; width: 100%; max-width: 720px; margin: 8px 0 18px; background: transparent; }
+.panel-body .table th { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  border: 0 !important; border-bottom: 1px solid var(--ink) !important; padding: 8px 10px 8px 0 !important; background: transparent; }
+.panel-body .table td { border: 0 !important; border-bottom: 1px solid var(--hair) !important; padding: 10px 10px 10px 0 !important; vertical-align: top; }
+.panel-body .table tr:nth-child(even) td { background: transparent; }
+
+/* the answer table (first on the overview): the total reads as the headline number */
+.panel-body > p > .table:first-of-type td:last-child { text-align: right; }
+.panel-body > p > .table:first-of-type tr:first-child td { font-size: 28px; letter-spacing: -0.02em; padding: 14px 0 !important; border-bottom: 1px solid var(--ink) !important; }
+.panel-body > p > .table:first-of-type tr:first-child td:first-child { font-size: 13px; font-family: var(--sans); color: var(--muted); vertical-align: bottom; }
+
+/* break test: a 2px ink rule, numbers carry the drama */
+.panel-body blockquote { border: 0; border-top: 2px solid var(--ink); background: transparent; margin: 18px 0 26px; padding: 14px 0 0; max-width: 720px; }
+.panel-body blockquote p { font-size: 15px; color: var(--ink); }
+.panel-body blockquote strong:first-child { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+.panel-body blockquote strong:not(:first-child) { font-family: var(--mono); font-size: 26px; font-weight: 500; color: var(--brick); letter-spacing: -0.02em; display: inline-block; margin: 2px 0; }
+
+/* holds / red build; the answer table keeps ink */
+.panel-body td strong { color: var(--green); }
+.panel-body > p > .table:first-of-type td strong { color: var(--ink); }
+/* phones: dbt docs is desktop-only (fixed 960px app, sidebar); drop the sidebar, let content fill the width */
+@media (max-width: 760px) {
+  .app { min-width: 0 !important; width: 100% !important; }
+  .app-menu { display: none !important; }
+  .app-body, .app-content { width: 100% !important; max-width: 100% !important; margin: 0 !important; left: 0 !important; }
+  .app-frame.app-pad { padding: 16px !important; }
+  .panel-body h1 { font-size: 24px; }
+  .panel-body .table { font-size: 13px; }
+  .panel-body > p > .table:first-of-type tr:first-child td { font-size: 22px; }
+}
+
+/* trust-sprint additions (mission-os#1394): the ten-question table carries full Snowflake request ids, so a table with 6+ columns
+ * may use the full content width (the markdown sits inside one wrapper <p> capped at 68ch by the rule above). */
+.panel-body p.ng-isolate-scope { max-width: 960px; }
+.panel-body .table:has(th:nth-child(6)) { max-width: 960px; }
+.panel-body .table td code { font-size: 12px; }
+.panel-body pre code { font-size: 12.5px; }
+@media (max-width: 760px) {
+  .panel-body .table:has(th:nth-child(6)) { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .panel-body .table:has(th:nth-child(6)) td:nth-child(2) { min-width: 200px; }
+  .panel-body .table:has(th:nth-child(6)) td:last-child { white-space: nowrap; }
+}

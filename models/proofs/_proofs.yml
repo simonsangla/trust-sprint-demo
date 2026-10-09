@@ -1,0 +1,29 @@
+version: 2
+
+# One exposure per proof in proofs/: it shows in the lineage graph next to the models it tested,
+# and on those models' pages under "Referenced by".
+exposures:
+  - name: proof_2026_10_09_semantic_view_still_wrong
+    label: "Proof: a semantic view does not make the analyst's answer right"
+    type: analysis
+    maturity: high
+    url: https://github.com/simonsangla/trust-sprint-demo/tree/main/proofs/2026-10-09-semantic-view-still-wrong
+    description: |
+      **Claim tested (2026-10-09):** put your metrics in a governed semantic view and an AI analyst on top of it
+      gives trustworthy numbers.
+
+      | | Owner's number | Session filter only (recomputed) | Both date filters (recomputed) | Cortex Analyst returned |
+      |---|---|---|---|---|
+      | Q04 conversion rate, June 2026 | 0.0809 | 0.080919 | 0.852632 | 0.852632 |
+      | Q05 conversion rate, organic, H1 2026 | 0.0879 | 0.087928 | 0.907692 | 0.907692 |
+
+      **Result: holds.** The generated SQL filtered `sessions.session_date` and `bookings.booking_date`; sessions without
+      a booking drop out of the denominator. `dbt build` stays green unless a known-answer test exists.
+      The 8.09% is recomputed from the seeds in DuckDB, not re-run live on Snowflake.
+
+      Re-run: `bash proofs/2026-10-09-semantic-view-still-wrong/check.sh` (CI runs it on every push).
+    depends_on:
+      - ref('fct_question_verdicts')
+      - ref('fct_metric_truth')
+    owner:
+      name: Simon Sangla
