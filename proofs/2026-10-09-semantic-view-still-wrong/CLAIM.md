@@ -26,6 +26,7 @@ re-derived from the `sessions` and `bookings` seeds in DuckDB; the analyst's num
 2. the owner's number equals the session-filter-only ratio (tolerance 0.0005) and the analyst's number equals the both-filters ratio (1e-6);
 3. the pinned test `tests/assert_conversion_double_filter_mechanism.sql` passes;
 4. the same test goes RED on a copy where the owner's Q04 number is corrupted (0.0809 -> 0.8526), so it cannot pass vacuously.
+5. the verdict tally dbt computes from the seeds (`fct_question_verdicts`) is printed as `Verdicts: 10 questions, 5 pass, 3 warning, 2 fail` and must equal the table on the page (`models/overview.md`), so the numbers a post quotes are the page's own.
 
 **Result:** holds. A governed view plus a real analyst still returned 85.26% where the right answer is 8.09%.
 

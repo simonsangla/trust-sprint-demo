@@ -5,6 +5,7 @@
 # seeds with its own SQL, once with the session-date filter alone and once with BOTH the session-date and
 # booking-date filters the analyst generated, (3) runs the pinned dbt test, and (4) runs that test again on a
 # copy where the owner's Q04 number is corrupted (0.0809 -> 0.8526) and requires it to go RED.
+# (5) recomputes the pass / warning / fail tally with dbt and requires it to equal the table on the page.
 # Nothing here calls Snowflake: the live run is frozen in seeds/cortex_answers.csv, the owner values in
 # seeds/question_pack.csv. Exit 0 only if every step holds. REF=<rev> checks another commit than HEAD.
 set -uo pipefail
@@ -62,5 +63,14 @@ prep mutated || { echo "FAIL: mutated tree did not build"; exit 1; }
 mout=$(pinned mutated)
 printf '%s\n' "$mout" | grep -q "FAIL 1 $T" || { echo "FAIL: pinned test stayed green with the owner's Q04 number corrupted"; fail=1; }
 echo "pinned test: clean PASS; owner's Q04 corrupted to 0.8526 -> $(printf '%s\n' "$mout" | grep -q "FAIL 1 $T" && echo RED || echo STILL GREEN)"
+# the page's own verdict tally (models/overview.md: "| Pass | 5 |" ...) must equal the tally dbt computes from the seeds
+vcount(){ (cd "$W/clean" && DBT_PROFILES_DIR=. $DBT show --target-path "$W/clean/t" --inline "
+    select count(*) from {{ ref('fct_question_verdicts') }} where verdict = '$1'" 2>&1 | plain | grep -E '^\| *[0-9]' | tr -d '| ' | head -1); }
+ptally(){ awk -F'|' -v k="$1" '$2 ~ "^ *" k " *$" {gsub(/ /,"",$3); print $3; exit}' "$W/clean/models/overview.md"; }
+tp=$(vcount pass); tw=$(vcount trust_warning); tf=$(vcount fail); pp=$(ptally Pass); pw=$(ptally Warning); pf=$(ptally Fail)
+total=$(( ${tp:-0} + ${tw:-0} + ${tf:-0} ))
+echo "Verdicts: $total questions, $tp pass, $tw warning, $tf fail (page table: $pp pass, $pw warning, $pf fail)"
+[ "$total" = 10 ] || { echo "FAIL: expected 10 verdicts, dbt built $total"; fail=1; }
+{ [ -n "$tp" ] && [ "$tp" = "$pp" ] && [ "$tw" = "$pw" ] && [ "$tf" = "$pf" ]; } || { echo "FAIL: verdict tally from the seeds differs from the page table"; fail=1; }
 [ "$fail" = 0 ] || exit 1
 echo "PASS: Q04 0.0809 vs 0.852632 and Q05 0.0879 vs 0.907692 re-derived from the seeds; the double date filter explains both; the pinned test passes and goes red when the owner's number is wrong"
