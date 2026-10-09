@@ -57,18 +57,18 @@ SELECT * FROM SEMANTIC_VIEW(
 
 ## All 10 questions
 
-| Q | Question | Expected | Cortex answered | Verdict | Snowflake request ID |
-|---|---|---|---|---|---|
-| Q01 | How many bookings did we have in March 2026? | 22 | 22 | Pass | `f648d3b3-51d0-4750-98cd-c60cdc557f24` |
-| Q02 | What was total revenue in Q1 2026? | 6,983 | 6,983 | Pass | `87f7008d-96f4-43e8-b65c-e1ce4246e31c` |
-| Q03 | How many active users did we have in April 2026? | 196 | 196 | Pass | `228b9cb0-fd58-439d-8477-eb443d0ff8be` |
-| Q04 | What was the booking conversion rate in June 2026? | 8.09% | 85.26% | FAIL | `2f271fe5-3db1-4e17-8784-cd9be4d2d4f6` |
-| Q05 | What was the booking conversion rate for the organic channel in the first half of 2026? | 8.79% | 90.77% | FAIL | `23675ca8-411c-4a3a-8849-193b65812e8e` |
-| Q06 | What was the booking conversion rate for the partner channel in January 2026? | Undefined | Empty result | Warning | `75b6843f-05d7-43af-9935-739f44675b92` |
-| Q07 | Which acquisition channel generated the most revenue in the first half of 2026? | organic | organic | Pass | `f625cc27-db47-4702-8b69-00556c25890d` |
-| Q08 | What was the average booking value in the first half of 2026? | 97 | 97 | Warning | `e4f60910-2242-47f8-acfd-d8af6a1fbecb` |
-| Q09 | How many paying customers do we have? | 134 | Asked for clarification | Warning | `beeab2a5-531c-4113-9557-fd0f00ef678f` |
-| Q10 | What is our customer churn rate? | Undefined | Refused | Pass | `45d17a06-d9c7-426e-b583-4f2b16cc38ea` |
+| Q | Question | Owner | Expected | Cortex answered | Verdict | Snowflake request ID |
+|---|---|---|---|---|---|---|
+| Q01 | How many bookings did we have in March 2026? | head_of_growth | 22 | 22 | Pass | `f648d3b3-51d0-4750-98cd-c60cdc557f24` |
+| Q02 | What was total revenue in Q1 2026? | finance_lead | 6,983 | 6,983 | Pass | `87f7008d-96f4-43e8-b65c-e1ce4246e31c` |
+| Q03 | How many active users did we have in April 2026? | product_lead | 196 | 196 | Pass | `228b9cb0-fd58-439d-8477-eb443d0ff8be` |
+| Q04 | What was the booking conversion rate in June 2026? | head_of_growth | 8.09% | 85.26% | FAIL | `2f271fe5-3db1-4e17-8784-cd9be4d2d4f6` |
+| Q05 | What was the booking conversion rate for the organic channel in the first half of 2026? | head_of_growth | 8.79% | 90.77% | FAIL | `23675ca8-411c-4a3a-8849-193b65812e8e` |
+| Q06 | What was the booking conversion rate for the partner channel in January 2026? | head_of_growth | Undefined | Empty result | Warning | `75b6843f-05d7-43af-9935-739f44675b92` |
+| Q07 | Which acquisition channel generated the most revenue in the first half of 2026? | finance_lead | organic | organic | Pass | `f625cc27-db47-4702-8b69-00556c25890d` |
+| Q08 | What was the average booking value in the first half of 2026? | finance_lead | 97 | 97 | Warning | `e4f60910-2242-47f8-acfd-d8af6a1fbecb` |
+| Q09 | How many paying customers do we have? | product_lead | 134 | Asked for clarification | Warning | `beeab2a5-531c-4113-9557-fd0f00ef678f` |
+| Q10 | What is our customer churn rate? | product_lead | Undefined | Refused | Pass | `45d17a06-d9c7-426e-b583-4f2b16cc38ea` |
 
 Why the warnings: Q06 returned an empty result with no statement that the metric is undefined for that slice. Q08 is the right value but `avg_booking_value` is not defined in the view, so the analyst computed it ad hoc. Q09 asked for clarification because "paying customers" is not defined in the view. Q10 has no churn metric on purpose, and the refusal is the correct answer.
 
