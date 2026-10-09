@@ -5,7 +5,8 @@ Usage (from the repo root, after `dbt docs generate --static`):
 
 - replaces the absolute build path (root_path) with a neutral label
 - rewrites the <head> share tags (og/twitter), favicon and title
-- re-injects the "Built by" pill before </body>
+- re-injects the "Built by" pill before </body>, with the non-affiliation line
+- swaps the dbt logo for the self-hosted Snowflake icon (site/snowflake.svg, simple-icons, CC0)
 """
 import os
 import re
@@ -38,6 +39,17 @@ PILL = (
     'style="background:#fff;color:#101c2b;padding:6px 10px;border-radius:4px;text-decoration:none;font-weight:500">'
     "Book the scoping call &#8599;</a></div>"
 )
+DISCLAIMER = "Independent demo, not affiliated with or endorsed by Snowflake"
+# the pill is one fixed bar: the two links on top, the non-affiliation line under them
+PILL = PILL.replace("display:flex;align-items:center;gap:10px;", "display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;max-width:calc(100vw - 24px);", 1)
+PILL = PILL[: -len("</div>")] + (
+    '<span id="not-affiliated" style="flex-basis:100%;font-size:11px;opacity:.8;padding-bottom:2px">'
+    + DISCLAIMER + "</span></div>"
+)
+# the dbt logo (a data URI set from JS) becomes the official Snowflake icon, self-hosted next to index.html
+LOGO_OLD = '<img style="width: 100px; height: 40px" class="logo" ng-src="{{ logo }}" alt="dbt logo" />'
+LOGO_NEW = ('<img style="width: 40px; height: 40px" class="logo" src="snowflake.svg" '
+            'alt="Snowflake logo (official icon, used under CC0 via simple-icons; independent demo)" />')
 
 # 0. ledger theme (mission-os#1282): simonsangla.com tokens + IBM Plex, from scripts/site_theme.css
 THEME = (
@@ -82,6 +94,11 @@ sub(r'<meta name="twitter:title" content="[^"]*"/>',
 sub(r'<meta name="twitter:description" content="[^"]*"/>',
     f'<meta name="twitter:description" content="{DESC}"/>'
     f'<meta name="twitter:image" content="{SITE}/og.png"/>')
+
+# 2b. logo
+if LOGO_OLD not in html:
+    sys.exit("sanitize_docs: dbt logo markup not found; the dbt docs template changed")
+html = html.replace(LOGO_OLD, LOGO_NEW, 1)
 
 # 3. pill
 html = re.sub(r'<div id="built-by-simon".*?</div>|<a id="built-by-simon".*?</a>', "", html, flags=re.S)
