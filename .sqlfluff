@@ -1,0 +1,13 @@
+[sqlfluff]
+dialect = duckdb
+templater = dbt
+# Baseline: layout (LT) + AL01, AM05, ST06, ST09 are broken by the existing models (56 findings, 6 files).
+# They are deferred here, declared, not silently weakened; every other rule (casing, CV, RF, CP, ...) stays on.
+exclude_rules = layout, AL01, AM05, ST06, ST09
+
+[sqlfluff:templater:dbt]
+profiles_dir = .
+
+[sqlfluff:indentation]
+indent_unit = space
+tab_space_size = 2

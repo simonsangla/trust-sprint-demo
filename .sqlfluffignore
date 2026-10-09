@@ -1,0 +1,6 @@
+site/
+app/
+target/
+dbt_packages/
+# Snowflake DDL for the semantic view, not a dbt model and not DuckDB SQL
+snowflake/
