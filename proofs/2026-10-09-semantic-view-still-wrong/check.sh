@@ -72,5 +72,26 @@ total=$(( ${tp:-0} + ${tw:-0} + ${tf:-0} ))
 echo "Verdicts: $total questions, $tp pass, $tw warning, $tf fail (page table: $pp pass, $pw warning, $pf fail)"
 [ "$total" = 10 ] || { echo "FAIL: expected 10 verdicts, dbt built $total"; fail=1; }
 { [ -n "$tp" ] && [ "$tp" = "$pp" ] && [ "$tw" = "$pw" ] && [ "$tf" = "$pf" ]; } || { echo "FAIL: verdict tally from the seeds differs from the page table"; fail=1; }
+# the page's results table carries each question's named owner (mission-os#1454): the Owner cell of every row must equal seeds/question_pack.csv
+pageowners(){ python3 -I -c '
+import csv, sys
+seeds = {r["question_id"]: r["owner"] for r in csv.DictReader(open(sys.argv[1]))}
+rows = [l for l in open(sys.argv[2]) if l.startswith("|")]
+hdr = next((l for l in rows if l.split("|")[1].strip() == "Q"), None)
+if hdr is None: print("no results table header"); sys.exit(1)
+cols = [c.strip() for c in hdr.strip().strip("|").split("|")]
+if "Owner" not in cols: print("results table has no Owner column"); sys.exit(1)
+i = cols.index("Owner"); seen = {}
+for l in rows:
+    c = [x.strip() for x in l.strip().strip("|").split("|")]
+    if c and c[0] in seeds: seen[c[0]] = c[i]
+bad = [q for q in seeds if seen.get(q) != seeds[q]]
+if len(seeds) != 10 or bad: print("owner mismatch/missing: " + " ".join(bad or ["seed count != 10"])); sys.exit(1)
+print("owners match the seeds for %d questions" % len(seen))' "$1" "$2"; }
+if res=$(pageowners "$QP" "$W/clean/models/overview.md"); then echo "Owner column: $res"; else echo "FAIL: $res"; fail=1; fi
+cp "$W/clean/models/overview.md" "$W/ov.mut"
+sed -i.bak '/^| Q04 |/s/head_of_growth/finance_lead/' "$W/ov.mut"
+pageowners "$QP" "$W/ov.mut" >/dev/null && { echo "FAIL: Owner check stayed green with Q04's owner corrupted on the page"; fail=1; }
+echo "Owner check: page matches seeds; Q04 owner corrupted on a copy -> RED"
 [ "$fail" = 0 ] || exit 1
 echo "PASS: Q04 0.0809 vs 0.852632 and Q05 0.0879 vs 0.907692 re-derived from the seeds; the double date filter explains both; the pinned test passes and goes red when the owner's number is wrong"
