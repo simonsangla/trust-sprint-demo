@@ -12,3 +12,10 @@ jobs:
       - name: proofs (claims re-tested against this demo)
         env: {DBT: uvx --with dbt-duckdb --from dbt-core dbt}
         run: bash proofs/run_all.sh
+      - name: docs site carries every proof and request id (regenerate, then check committed site/)
+        env: {DBT_PROFILES_DIR: .}
+        run: |
+          uvx --with dbt-duckdb --from dbt-core dbt docs generate --static
+          python3 scripts/sanitize_docs.py
+          python3 scripts/check_site_proofs.py site/index.html
+          python3 scripts/check_site_proofs.py
