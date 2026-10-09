@@ -5,7 +5,7 @@
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ "$#" -gt 0 ] || { echo "usage: value.sh NUMBER..."; exit 64; }
-if [ -n "${PROOF_OUT:-}" ] && [ -f "$PROOF_OUT" ]; then out="$(cat "$PROOF_OUT")"; else out="$(bash "$HERE/check.sh" |& cat)"; fi
+if [ -n "${PROOF_OUT:-}" ] && [ -f "$PROOF_OUT" ]; then out="$(cat "$PROOF_OUT")"; else out="$(bash "$HERE/check.sh")"; fi
 fail=0
 for n in "$@"; do
   re="$(printf '%s' "$n" | sed 's/[.]/[.]/g')"
