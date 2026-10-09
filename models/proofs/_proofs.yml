@@ -27,3 +27,28 @@ exposures:
       - ref('fct_metric_truth')
     owner:
       name: Simon Sangla
+  - name: proof_2026_10_09_refusal_text_is_not_a_refusal
+    label: "Proof: an answer that says it cannot compute a metric has not necessarily refused"
+    type: analysis
+    maturity: high
+    url: https://github.com/simonsangla/trust-sprint-demo/tree/main/proofs/2026-10-09-refusal-text-is-not-a-refusal
+    description: |
+      **Claim tested (2026-10-09):** if an AI analyst says a metric cannot be computed, it has refused, so grading the
+      answer text is enough.
+
+      | Edit to the semantic view (20 runs each) | Said "cannot be computed" | SQL result was a number |
+      |---|---|---|
+      | E0 no verified query | 20 of 20 | 0 of 20 |
+      | E1 one unrelated verified query | 0 of 20 | 20 of 20 |
+      | E2 instruction "do not approximate" | 20 of 20 | 11 of 20 |
+      | E3 rule moved to question categorization | declined | 0 of 20 |
+
+      **Result: the claim fails.** At E2 the text refused in every run and the SQL computed a number in 11 of them.
+      Q10 of the original run is a clean refusal (no SQL, no rows), which is why it is a pass here.
+      Recounted from the frozen runs in `evidence/`, not re-run on Snowflake.
+
+      Re-run: `bash proofs/2026-10-09-refusal-text-is-not-a-refusal/check.sh` (CI runs it on every push).
+    depends_on:
+      - ref('fct_question_verdicts')
+    owner:
+      name: Simon Sangla

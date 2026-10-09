@@ -72,13 +72,29 @@ SELECT * FROM SEMANTIC_VIEW(
 
 Why the warnings: Q06 returned an empty result with no statement that the metric is undefined for that slice. Q08 is the right value but `avg_booking_value` is not defined in the view, so the analyst computed it ad hoc. Q09 asked for clarification because "paying customers" is not defined in the view. Q10 has no churn metric on purpose, and the refusal is the correct answer.
 
+## Refusal: the right answer to Q10, and how fragile it is
+
+Q10 asks for churn, which the view does not define. In the frozen run Cortex Analyst declined with no SQL and no rows (request `45d17a06-d9c7-426e-b583-4f2b16cc38ea`): the correct refusal, hence a pass above.
+
+A refusal is an output of the configuration, not a property of the analyst. I asked the same churn question 20 times after each of four edits of the view (fictional data, 8 Oct 2026, all frozen with their request IDs):
+
+| Edit to the view | Said "cannot be computed" | SQL result was a number |
+|---|---|---|
+| No verified query | 20 of 20 | 0 of 20 |
+| One unrelated verified query added | 0 of 20 | 20 of 20 (46.7%) |
+| Instruction: do not approximate undefined metrics | 20 of 20 | 11 of 20 |
+| Rule moved to question categorization | declined | 0 of 20 |
+
+**After the instruction, every answer said churn cannot be computed, and in 11 of 20 runs the SQL under the sentence still returned a number.** A grader that reads only the text scores that edit 20 of 20; reading the SQL result finds 11 failures. Recounted offline from the frozen runs, not re-run on Snowflake. Every run, with its text and SQL, is on the [refusal page](/refusal/).
+
 ## Tested in public
 
-The claim "a semantic view makes an AI analyst trustworthy" is re-run against this demo. It is a script in `proofs/` that CI re-runs on every push, and it appears in the lineage graph as an exposure.
+Two claims are re-run against this demo. Each is a script in `proofs/` that CI re-runs on every push, and each appears in the lineage graph as an exposure.
 
 | Date | Claim tested | Result |
 |---|---|---|
 | 2026-10-09 | A governed semantic view gives trustworthy analyst answers | **Holds.** On a governed view, Q04 and Q05 came back about ten times too high; the pinned test goes red when the owner's number is wrong. [Proof](#!/exposure/exposure.trust_sprint_demo.proof_2026_10_09_semantic_view_still_wrong) |
+| 2026-10-09 | An answer that says a metric cannot be computed is a refusal | **Fails.** After one instruction the text refused 20 of 20 and the SQL still computed a number in 11 of 20. [Proof](#!/exposure/exposure.trust_sprint_demo.proof_2026_10_09_refusal_text_is_not_a_refusal) |
 
 ## Start here
 

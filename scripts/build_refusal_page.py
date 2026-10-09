@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build app/refusal/index.html: the public evidence page for the Cortex Analyst refusal finding (mission-os #1362).
+"""Build site/refusal/index.html: the public evidence page for the Cortex Analyst refusal finding (mission-os #1362).
 Every run shown is a row of evidence/refusal_runs_2026-10-08/batch20.csv; nothing on the page is typed by hand.
     python3 scripts/build_refusal_page.py [--csv PATH]"""
 from __future__ import annotations
@@ -10,7 +10,7 @@ from refusal_outcome import outcome, gave_number  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CSV = ROOT / "evidence" / "refusal_runs_2026-10-08" / "batch20.csv"
-OUT = ROOT / "app" / "refusal" / "index.html"
+OUT = ROOT / "site" / "refusal" / "index.html"
 REPO = "https://github.com/simonsangla/trust-sprint-demo"
 CAL = "https://cal.com/simon-sangla/trust-sprint-scoping-call?ref=refusal"
 EDITS = [("E0", "Edit 0", "No verified queries"),
