@@ -4,8 +4,8 @@
 # PROOF_OUT = a saved copy of check.sh output (set by the gate); without it, check.sh is run here.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-[ "$#" -gt 0 ] || { echo "usage: value.sh NUMBER..." >&2; exit 2; }
-if [ -n "${PROOF_OUT:-}" ] && [ -f "$PROOF_OUT" ]; then out="$(cat "$PROOF_OUT")"; else out="$(bash "$HERE/check.sh" 2>&1)"; fi
+[ "$#" -gt 0 ] || { echo "usage: value.sh NUMBER..."; exit 64; }
+if [ -n "${PROOF_OUT:-}" ] && [ -f "$PROOF_OUT" ]; then out="$(cat "$PROOF_OUT")"; else out="$(bash "$HERE/check.sh" |& cat)"; fi
 fail=0
 for n in "$@"; do
   re="$(printf '%s' "$n" | sed 's/[.]/[.]/g')"
