@@ -47,6 +47,8 @@ $(ratios "$2" "$3" "$4")
 EOF2
   exp=$(seedval "$QP" "$1" expected_answer); got=$(seedval "$CA" "$1" answer_value); rid=$(seedval "$CA" "$1" request_id)
   echo "$1 owner $exp | session filter only $so | both filters $bf | analyst shown $got | request $rid"
+  pct(){ awk -v x="$1" 'BEGIN{printf "%.2f%%", x*100}'; }
+  echo "$1 as percentages: owner $(pct "$exp") | session filter only $(pct "$so") | both filters $(pct "$bf") | analyst shown $(pct "$got")"
   near "$so" "$exp" 0.0005 || { echo "FAIL: $1 session-filter-only ratio is not the owner's number"; fail=1; }
   near "$bf" "$got" 0.000001 || { echo "FAIL: $1 both-filters ratio is not what the analyst returned"; fail=1; }
   near "$so" "$got" 0.1 && { echo "FAIL: $1 analyst number is close to the right one; the claim does not hold"; fail=1; }
