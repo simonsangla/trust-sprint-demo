@@ -9,3 +9,6 @@ jobs:
       - name: dbt build (DuckDB, offline, reads the frozen Cortex answers, never Snowflake)
         env: {DBT_PROFILES_DIR: .}
         run: uvx --with dbt-duckdb --from dbt-core dbt build
+      - name: proofs (claims re-tested against this demo)
+        env: {DBT: uvx --with dbt-duckdb --from dbt-core dbt}
+        run: bash proofs/run_all.sh
