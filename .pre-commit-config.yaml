@@ -35,3 +35,9 @@ repos:
         language: system
         pass_filenames: false
         files: ^(models/|macros/|seeds/|tests/|dbt_project\.yml|profiles\.yml)
+      - id: actions-pinned-by-sha
+        name: workflow actions pinned by commit SHA
+        entry: bash scripts/check_actions_pinned.sh
+        language: system
+        pass_filenames: false
+        files: ^\.github/workflows/
