@@ -1,0 +1,12 @@
+-- The "assistant question": the SQL an AI analytics assistant would generate for
+-- "List the customers who signed up in 2026, with their email, so I can contact them."
+-- The assistant runs it with the caller's role; nothing in the SQL knows or checks who is asking.
+-- Fictional emails are derived from the fictional user ids (seeds/users.csv has no email column).
+with customers as (
+  select user_id, signup_date, lower(user_id) || '@example.test' as email
+  from {{ ref('users') }}
+)
+select user_id, signup_date, MASKED_EMAIL as email
+from customers
+where signup_date >= date '2026-01-01'
+order by user_id

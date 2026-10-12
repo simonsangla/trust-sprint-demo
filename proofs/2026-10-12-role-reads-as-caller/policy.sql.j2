@@ -1,0 +1,6 @@
+-- Offline emulation of a Snowflake masking policy on the email column. In Snowflake this would be
+--   create masking policy email_mask as (val string) returns string ->
+--     case when current_role() in ('ANALYST_FULL') then val else '***MASKED***' end;
+-- DuckDB has no masking policies and no roles, so CURRENT_ROLE() is the dbt var `role`, set per run.
+-- VAL is replaced by the column expression when check.sh composes the query.
+case when '{{ var("role") }}' in ('ANALYST_FULL') then VAL else '***MASKED***' end
