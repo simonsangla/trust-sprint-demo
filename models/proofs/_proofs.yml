@@ -52,3 +52,52 @@ exposures:
       - ref('fct_question_verdicts')
     owner:
       name: Simon Sangla
+  - name: proof_2026_10_12_role_reads_as_caller
+    label: "Proof: an AI assistant reads data as the role that calls it"
+    type: analysis
+    maturity: high
+    url: https://github.com/simonsangla/trust-sprint-demo/tree/main/proofs/2026-10-12-role-reads-as-caller
+    description: |
+      **Claim tested (2026-10-12):** an AI analytics assistant is not more careful than the role that calls it;
+      whatever protects a personal column has to live in the data platform, on the caller's role.
+
+      | Role (same assistant SQL) | Rows | Emails exposed |
+      |---|---|---|
+      | ANALYST_FULL (broad) | 164 | 164 |
+      | ANALYST_RESTRICTED | 164 | 0 |
+      | ANALYST_RESTRICTED, mask removed | 164 | 164 |
+
+      **Result: holds.** Only the masking policy, evaluated against the caller's role, stands between the restricted
+      role and the emails. Emulated in DuckDB (a dbt var stands in for `CURRENT_ROLE()`); no Snowflake call was made.
+      Emails are fictional, derived from the fictional user ids.
+
+      Re-run: `bash proofs/2026-10-12-role-reads-as-caller/check.sh` (CI runs it on every push).
+    depends_on:
+      - ref('stg_users')
+    owner:
+      name: Simon Sangla
+  - name: proof_2026_10_12_native_eval_cannot_grade_refusal
+    label: "Proof: the native Cortex Analyst evaluation cannot grade a refusal"
+    type: analysis
+    maturity: high
+    url: https://github.com/simonsangla/trust-sprint-demo/tree/main/proofs/2026-10-12-native-eval-cannot-grade-refusal
+    description: |
+      **Claim tested (2026-10-12):** Snowflake now ships a native evaluation for Cortex Analyst, so you no longer need
+      your own test pack.
+
+      | | Questions |
+      |---|---|
+      | Gradable (have an expected SQL) | 9 of 10 (Q01-Q09) |
+      | Refusal questions | 2 (Q06, Q10) |
+      | Excluded: right answer is a refusal on an undefined metric | 1 (Q10 churn) |
+
+      **Result: the claim fails for refusals.** The native evaluation grades SQL against verified queries (question +
+      expected SQL); a refusal has no expected SQL, so Q10 never enters the set. The native evaluation was not run;
+      this proof is about what can enter the evaluation set.
+
+      Re-run: `bash proofs/2026-10-12-native-eval-cannot-grade-refusal/check.sh` (CI runs it on every push).
+    depends_on:
+      - ref('stg_question_pack')
+      - ref('stg_metric_registry')
+    owner:
+      name: Simon Sangla
