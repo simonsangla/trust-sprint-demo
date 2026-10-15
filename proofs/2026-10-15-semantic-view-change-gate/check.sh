@@ -59,16 +59,17 @@ gate(){ # $1 tree -> one line per question; MOVED ids in $W/$1.moved. exit 0 all
     | grep -E '^\| *Q[0-9]' | tr -d '|' | awk '{print $1, $2}' > "$W/$1.got"
   [ "$(wc -l < "$W/$1.got" | tr -d ' ')" = "$n" ] || { echo "FAIL: dbt show ($1): expected $n answers, got $(wc -l < "$W/$1.got" | tr -d ' ')"; return 2; }
   python3 -I -c '
-import csv, sys
+import csv, math, sys
 pack = {r["question_id"]: r for r in csv.DictReader(open(sys.argv[1]))}
 moved = []
 for line in open(sys.argv[2]):
     q, v = line.split()
     exp, tol = pack[q]["expected_answer"], float(pack[q]["tolerance"] or 0)
+    undefined = v == "NULL" or not math.isfinite(float(v))  # nan renders "nan" on macOS, "-nan" on Linux
     if exp == "UNDEFINED":
-        ok = v in ("NULL", "nan", "inf", "-inf")
+        ok = undefined
     else:
-        ok = v not in ("NULL", "nan", "inf", "-inf") and abs(float(v) - float(exp)) <= tol + 1e-9
+        ok = not undefined and abs(float(v) - float(exp)) <= tol + 1e-9
     print("%s %s expected %s got %s" % ("ok  " if ok else "MOVED", q, exp, v))
     if not ok: moved.append(q)
 open(sys.argv[3], "w").write(" ".join(moved))
