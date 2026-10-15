@@ -1,19 +1,37 @@
 """Turn one question of seeds/question_pack.csv into DuckDB SQL using the METRICS block of
 snowflake/semantic_view.sql as written in the tree under test. Stdlib only; offline.
 Usage: python3 -I svsql.py TREE QUESTION_ID  -> prints SQL, or exits 3 if the question's metric is not in the view.
-Anchor rule: a base metric filters its own table on its own date column; a derived metric (a.x / b.y) anchors
-bookings to the sessions in the slice (the owner's definition, see 2026-10-09-semantic-view-still-wrong)."""
+       python3 -I svsql.py --scope VIEW_SQL PACK_CSV -> prints the ids of the questions whose metric VIEW_SQL defines.
+Only the metric EXPRESSIONS come from the view. The anchoring and the filters are fixed here, not read from the view:
+a base metric filters its own table on its own date column (and the session channel); a derived metric (a.x / b.y)
+anchors bookings to the sessions in the slice (the owner's definition, see 2026-10-09-semantic-view-still-wrong)."""
 import csv, re, sys
+
+
+def parse_metrics(sv):
+    block = re.search(r"\n  METRICS \((.*?)\n  \)\n", sv, re.S)
+    if not block:
+        sys.exit("FAIL: no METRICS block in snowflake/semantic_view.sql")
+    body = block.group(1)
+    metrics = {}
+    for m in re.finditer(r"^    (?:(\w+)\.)?(\w+) AS (.+?)\n      COMMENT", body, re.M | re.S):
+        metrics[m.group(2)] = (m.group(1), m.group(3).strip())
+    # independent counts: every entry has one "<name> AS" head and one COMMENT; a format drift the parser
+    # skipped must fail here, not silently shrink the set of replayed questions
+    heads = len(re.findall(r"^\s*(?:\w+\.)?\w+\s+AS\s", body, re.M))
+    comments = len(re.findall(r"\bCOMMENT\s*=", body))
+    if not metrics or heads != len(metrics) or comments != len(metrics):
+        sys.exit("FAIL: METRICS block parsed %d metrics but has %d AS entries and %d COMMENTs"
+                 % (len(metrics), heads, comments))
+    return metrics
+
+
+if sys.argv[1] == "--scope":
+    metrics = parse_metrics(open(sys.argv[2], encoding="utf-8").read())
+    print(" ".join(r["question_id"] for r in csv.DictReader(open(sys.argv[3])) if r["metric_key"] in metrics))
+    sys.exit(0)
 tree, qid = sys.argv[1], sys.argv[2]
-sv = open(tree + "/snowflake/semantic_view.sql", encoding="utf-8").read()
-block = re.search(r"\n  METRICS \((.*?)\n  \)\n", sv, re.S)
-if not block:
-    sys.exit("FAIL: no METRICS block in snowflake/semantic_view.sql")
-metrics = {}
-for m in re.finditer(r"^    (?:(\w+)\.)?(\w+) AS (.+?)\n      COMMENT", block.group(1), re.M | re.S):
-    metrics[m.group(2)] = (m.group(1), m.group(3).strip())
-if not metrics:
-    sys.exit("FAIL: METRICS block parsed to zero metrics")
+metrics = parse_metrics(open(tree + "/snowflake/semantic_view.sql", encoding="utf-8").read())
 q = [r for r in csv.DictReader(open(tree + "/seeds/question_pack.csv")) if r["question_id"] == qid][0]
 key = q["metric_key"]
 if key not in metrics:
