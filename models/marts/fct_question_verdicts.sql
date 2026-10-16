@@ -3,6 +3,11 @@
 --   trust_warning the number may be right but the way it was produced should not be trusted;
 --                 also an analyst clarification request on a metric the view does not define
 --   fail          wrong value, no answer, an error, or an invented number for an undefined metric
+-- failure_cause (none for pass) is derived from the frozen generated SQL and the metric registry, first match wins:
+--   filter      the SQL filters on both sessions.session_date and bookings.booking_date (Q04, Q05)
+--   definition  the metric is not in the view, or the question has no defined answer for its slice (Q06, Q08, Q09)
+--   join        the SQL joins tables itself instead of letting the semantic view resolve the relationship
+--   model       any other non-pass: the analyst chose a wrong metric, value or interpretation
 with joined as (
     select
         q.question_id, q.question, q.metric_key, q.owner, q.set_name, q.expect_refusal,
@@ -65,5 +70,13 @@ select
         when metric_status = 'not_in_view' then 'Correct value, but ' || metric_key || ' is not defined in the semantic view: the analyst computed it ad hoc.'
         when has_zero_guard = 'false' then 'Correct value, but ' || metric_key || ' divides with no zero-guard.'
     end as reason,
+    case
+        when verdict = 'pass' then 'none'
+        when lower(generated_sql) like '%sessions.session_date%'
+            and lower(generated_sql) like '%bookings.booking_date%' then 'filter'
+        when metric_status = 'not_in_view' or expect_refusal then 'definition'
+        when lower(generated_sql) like '% join %' then 'join'
+        else 'model'
+    end as failure_cause,
     request_id, run_ts, generated_sql
 from judged

@@ -26,6 +26,9 @@ seeds/cortex_answers.csv  generated SQL, returned value, request id, run timesta
 - `conversion_rate = bookings / session_count` has **no zero-guard on purpose**. The analyst's Q04/Q05 SQL filtered both
   `sessions.session_date` and `bookings.booking_date`; that drops sessions without a booking and inflates the ratio
   (0.85 vs 0.08). With the session filter alone the same view returns the right 0.0809.
+- Every non-pass verdict carries a `failure_cause` derived from the generated SQL (`fct_failure_cause_summary`):
+  **filter** 2 (Q04, Q05: both date columns filtered), **definition** 3 (Q06, Q08, Q09), join 0, model 0.
+  Proof and chart: `proofs/2026-10-16-failure-cause/`.
 - A `fail` or `trust_warning` is a finding about the analyst, not a build error: `dbt build` stays green and the
   verdict column carries the bad news.
 
@@ -35,8 +38,19 @@ seeds/cortex_answers.csv  generated SQL, returned value, request id, run timesta
 cd trust-sprint-demo && DBT_PROFILES_DIR=. uvx --with dbt-duckdb --from dbt-core dbt build
 ```
 
-58 nodes: 6 seeds, 9 models, 43 tests. The build is fully offline: it reads the frozen
+66 nodes: 7 seeds, 10 models, 49 tests. The build is fully offline: it reads the frozen
 `cortex_answers.csv`, never Snowflake. `dbt docs generate --static` produces `site/index.html`.
+
+## Metadata checks (dbt-checkpoint)
+
+```
+bash scripts/checkpoint_report.sh   # writes target/checkpoint_report.txt, exit 1 on any FAIL
+```
+
+Runs only the dbt-checkpoint hooks of `.pre-commit-config.yaml` (properties file, description,
+at least one test, one `unique` test per model, no hard-coded table names) over
+`target/manifest.json` and writes one PASS/FAIL line per hook, with the failing model named.
+No warehouse needed. The same hooks run in `scripts/pre-pr.sh` and CI.
 
 ## Re-running the live part (needs Simon's Snowflake connection `mission_os_dogfood`)
 

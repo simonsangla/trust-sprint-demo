@@ -26,8 +26,23 @@ models:
         data_tests: [not_null]
       - name: owner
         data_tests: [not_null]
+      - name: failure_cause
+        description: >
+          Why a non-pass verdict happened, derived from the frozen SQL and the metric registry
+          (none for pass). See the header of fct_question_verdicts.sql for the rules.
+        data_tests:
+          - not_null
+          - accepted_values: {arguments: {values: [definition, join, filter, model, none]}}
   - name: fct_verdict_summary
     description: Count of questions per verdict.
     columns:
       - name: verdict
         data_tests: [unique, not_null]
+  - name: fct_failure_cause_summary
+    description: Count of questions per failure_cause, plus the question ids behind each count.
+    columns:
+      - name: failure_cause
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values: {arguments: {values: [definition, join, filter, model, none]}}
