@@ -41,3 +41,23 @@ repos:
         language: system
         pass_filenames: false
         files: ^\.github/workflows/
+  # dbt-checkpoint: metadata checks over target/manifest.json, written by the dbt-parse hook above
+  # (hooks run in file order, so this block must stay after it). Manifest-only hooks: none needs
+  # catalog.json or a warehouse. Never add unify-column-description (it rewrites descriptions).
+  # check-model-columns-have-desc is left out: 22 columns are undocumented on main (mission-os#1531).
+  - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+    rev: v2.0.10
+    hooks:
+      - id: check-model-has-properties-file
+        files: ^models/
+      - id: check-model-has-description
+        files: ^models/
+      - id: check-model-has-tests
+        args: [--test-cnt, "1", --]
+        files: ^models/
+      # every model keeps a uniqueness test on its grain (a singular test does not count here)
+      - id: check-model-has-tests-by-name
+        args: [--tests, unique=1, --]
+        files: ^models/
+      - id: check-script-has-no-table-name
+        files: ^models/
