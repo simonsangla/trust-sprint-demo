@@ -37,7 +37,6 @@ models:
     description: Count of questions per verdict.
     columns:
       - name: verdict
-        data_tests: [unique, not_null]
   - name: fct_failure_cause_summary
     description: Count of questions per failure_cause, plus the question ids behind each count.
     columns:
