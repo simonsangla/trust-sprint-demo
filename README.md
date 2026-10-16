@@ -41,6 +41,17 @@ cd trust-sprint-demo && DBT_PROFILES_DIR=. uvx --with dbt-duckdb --from dbt-core
 66 nodes: 7 seeds, 10 models, 49 tests. The build is fully offline: it reads the frozen
 `cortex_answers.csv`, never Snowflake. `dbt docs generate --static` produces `site/index.html`.
 
+## Metadata checks (dbt-checkpoint)
+
+```
+bash scripts/checkpoint_report.sh   # writes target/checkpoint_report.txt, exit 1 on any FAIL
+```
+
+Runs only the dbt-checkpoint hooks of `.pre-commit-config.yaml` (properties file, description,
+at least one test, one `unique` test per model, no hard-coded table names) over
+`target/manifest.json` and writes one PASS/FAIL line per hook, with the failing model named.
+No warehouse needed. The same hooks run in `scripts/pre-pr.sh` and CI.
+
 ## Re-running the live part (needs Simon's Snowflake connection `mission_os_dogfood`)
 
 ```
