@@ -1,0 +1,12 @@
+dbt-checkpoint report
+commit: planted-bug branch, built on feat/1531-dbt-checkpoint ab61d9c
+generated: 2026-10-16T20:09:42Z
+
+PASS check-model-has-properties-file
+PASS check-model-has-description
+PASS check-model-has-tests
+FAIL check-model-has-tests-by-name
+  fct_verdict_summary: has only 0 unique tests, but 1 are required.
+PASS check-script-has-no-table-name
+
+RESULT: at least one dbt-checkpoint hook failed (see FAIL lines)
