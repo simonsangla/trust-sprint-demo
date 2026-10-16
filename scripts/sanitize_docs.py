@@ -52,10 +52,18 @@ LOGO_NEW = ('<img style="width: 40px; height: 40px" class="logo" src="snowflake.
             'alt="Snowflake logo (official icon, used under CC0 via simple-icons; independent demo)" />')
 
 # 0. ledger theme (mission-os#1282): simonsangla.com tokens + IBM Plex, from scripts/site_theme.css
+# 0b. Vercel Web Analytics injection
+ANALYTICS = (
+    '<script>\n'
+    '  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };\n'
+    '</script>\n'
+    '<script defer src="/_vercel/insights/script.js"></script>'
+)
 THEME = (
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
     '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500'
-    '&family=IBM+Plex+Sans:wght@400;500&display=swap">'
+    '&family=IBM+Plex+Sans:wght@400;500&display=swap">' +
+    ANALYTICS +
     "<style>" + open(os.path.join(ROOT, "scripts", "site_theme.css"), encoding="utf-8").read() + "</style>"
 )
 
