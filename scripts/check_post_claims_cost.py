@@ -10,8 +10,9 @@ Where each number comes from (none is typed in this file):
                                               the owner value in seeds/question_pack.csv
   5 pass / 3 warning / 2 fail                 the "Verdicts:" line of proofs/2026-10-09-semantic-view-still-wrong/check.sh
                                               (dbt on DuckDB, which also checks it against the page table)
-The first two lines quote an outside article (Medium recap of a Snowflake User Group talk); they are fixed text here and are
-verified against the article by the R3 reviewer, not by this script."""
+Lines 4 and 5 quote and paraphrase an outside article (Medium recap of a Snowflake User Group talk); they are fixed text
+here and are verified against the article by the R3 reviewer, not by this script. "One of N failures" relies on Q04 being a
+fail: the proof's verdict rules make a wrong value a fail (Q04 0.852632 vs owner 0.0809)."""
 from __future__ import annotations
 
 import argparse
@@ -25,14 +26,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PROOF = ROOT / "proofs" / "2026-10-09-semantic-view-still-wrong" / "check.sh"
 
-POST = """\"A dashboard runs the same query every morning. An agent takes a different path every run.\"
-That is from a Medium recap of a Snowflake User Group Netherlands talk. It says one prompt becomes spend in Cortex inference, Cortex Search, AI functions and the warehouses that run the SQL, and that Snowflake still has no single view of what that interaction cost.
-Fair. But before the cost question, I'd ask: was the answer right? I tested that on fictional data, in my own demo (Trust Sprint).
-I ran {n} business questions through a real Cortex Analyst. {n_pass} passed, {n_warn} gave warnings, {n_fail} failed.
-On a governed semantic view, the June conversion rate came back as {got_pct}%. The right answer was {true_pct}% ({true_2dp}% recomputed from demo seeds in DuckDB, not on Snowflake).
-(One run on {run_date}. Not a client result, and one run says nothing about how often this happens.)
-So I'd check answers against known results before building cost attribution on top of them.
-How do you check your agents' answers today?
+POST = """In my own demo (Trust Sprint), on a governed semantic view, Cortex Analyst answered {got_pct}% for the June conversion rate. The right answer was {true_pct}%.
+That was one of {n_fail} failures in one run of {n} business questions on fictional data: {n_pass} passed, {n_warn} raised trust warnings in my checks, {n_fail} failed.
+(The {got_pct}% is from one Cortex Analyst run on {run_date}. The {true_2dp}% is recomputed from the demo seeds in DuckDB, not on Snowflake. Fictional data, not a client result, and one run says nothing about how often this happens.)
+Daan Bakboord's recap of Amir Peres's talk at the Snowflake User Group Netherlands, on what agents cost, has this line: \"A dashboard runs the same query every morning. An agent takes a different path every run.\"
+The recap says one prompt becomes spend in Cortex inference, Cortex Search, AI functions and the warehouses that run the SQL, and that Snowflake still has no single view of what that interaction cost.
+My test was Cortex Analyst, not an agent. The recap is about what a question costs. I only tested whether the answer was right, on a much smaller scale. A low cost per question does not tell you the answer was correct.
+How do you check answers against known results today?
 #Snowflake #Cortex #DataQuality #AnalyticsEngineering
 Media: trustsprint-85-vs-8.png - Screenshot of the page title \"Cortex Analyst said {got_pct}%. The right answer was {true_pct}%.\"
 """
@@ -71,6 +71,9 @@ def compute(proof_out):
     true = month_ratio(rows("sessions.csv"), rows("bookings.csv"), "2026-06-01", "2026-06-30")
     if abs(true - owner) > float(pack["Q04"]["tolerance"] or 0) + 5e-4:
         raise SystemExit(f"FAIL: recomputed June conversion {true:.6f} != owner value {owner}")
+    # the post calls the 85% answer one of the failures: a wrong value is a fail in models/marts/fct_question_verdicts.sql
+    if abs(got - owner) <= float(pack["Q04"]["tolerance"] or 0):
+        raise SystemExit("FAIL: Q04 is within tolerance, so it is not one of the failures the post says it is")
     n, p, w, f = verdicts(proof_out)
     run_ts = {r["run_ts"][:10] for r in answers.values()}
     if len(run_ts) != 1 or len(answers) != n:
