@@ -87,6 +87,10 @@ TEMPLATE = r"""<!doctype html>
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <style>
 /* Ledger (simonsangla.com, mission-os #1283): paper surface, deep navy ink, numbers first. Green = holds, brick = risk/refusal.
    Ink is the single CTA fill. Light only, by design (same as the site). Chart marks use #23845c (dataviz validator pass). */
