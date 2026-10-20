@@ -93,5 +93,12 @@ cp "$W/clean/models/overview.md" "$W/ov.mut"
 sed -i.bak '/^| Q04 |/s/head_of_growth/finance_lead/' "$W/ov.mut"
 pageowners "$QP" "$W/ov.mut" >/dev/null && { echo "FAIL: Owner check stayed green with Q04's owner corrupted on the page"; fail=1; }
 echo "Owner check: page matches seeds; Q04 owner corrupted on a copy -> RED"
+# the figures the 21 Oct LinkedIn post states, rounded from the seeds (scripts/check_post_claims_cost.py renders the post from them)
+python3 -I -c '
+import csv, datetime as dt, sys
+ans = list(csv.DictReader(open(sys.argv[1]))); pack = {r["question_id"]: r for r in csv.DictReader(open(sys.argv[2]))}
+q4 = [r for r in ans if r["question_id"] == "Q04"][0]; d = dt.date.fromisoformat(q4["run_ts"][:10])
+o = float(pack["Q04"]["expected_answer"]) * 100
+print("Post figures: %d questions | run %d %s %d | analyst %d%% | owner %d%% (%.2f%%)" % (len(ans), d.day, d.strftime("%b"), d.year, round(float(q4["answer_value"]) * 100), round(o), o))' "$CA" "$QP"
 [ "$fail" = 0 ] || exit 1
 echo "PASS: Q04 0.0809 vs 0.852632 and Q05 0.0879 vs 0.907692 re-derived from the seeds; the double date filter explains both; the pinned test passes and goes red when the owner's number is wrong"
