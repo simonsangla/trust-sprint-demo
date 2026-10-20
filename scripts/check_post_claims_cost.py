@@ -10,7 +10,7 @@ Where each number comes from (none is typed in this file):
                                               the owner value in seeds/question_pack.csv
   5 pass / 3 warning / 2 fail                 the "Verdicts:" line of proofs/2026-10-09-semantic-view-still-wrong/check.sh
                                               (dbt on DuckDB, which also checks it against the page table)
-The first two lines quote an outside article (Snowflake User Group talk recap); they are fixed text here and are
+The first two lines quote an outside article (Medium recap of a Snowflake User Group talk); they are fixed text here and are
 verified against the article by the R3 reviewer, not by this script."""
 from __future__ import annotations
 
@@ -26,9 +26,9 @@ ROOT = Path(__file__).resolve().parent.parent
 PROOF = ROOT / "proofs" / "2026-10-09-semantic-view-still-wrong" / "check.sh"
 
 POST = """\"A dashboard runs the same query every morning. An agent takes a different path every run.\"
-That is from a recap of a Snowflake User Group Netherlands talk (talk held 1 Oct, published 2 Oct on daanalytics.nl, 14 Oct on Medium). It says one prompt becomes spend in Cortex inference, Cortex Search, AI functions and the warehouses that run the SQL, and that Snowflake still has no single view of what that interaction cost.
-Fair. But before the cost question, I'd ask: was the answer right?
-In my own demo (Trust Sprint), on fictional data, I ran {n} business questions through a real Cortex Analyst. {n_pass} passed, {n_warn} gave warnings, {n_fail} failed.
+That is from a Medium recap of a Snowflake User Group Netherlands talk. It says one prompt becomes spend in Cortex inference, Cortex Search, AI functions and the warehouses that run the SQL, and that Snowflake still has no single view of what that interaction cost.
+Fair. But before the cost question, I'd ask: was the answer right? I tested that on fictional data, in my own demo (Trust Sprint).
+I ran {n} business questions through a real Cortex Analyst. {n_pass} passed, {n_warn} gave warnings, {n_fail} failed.
 On a governed semantic view, the June conversion rate came back as {got_pct}%. The right answer was {true_pct}% ({true_2dp}% recomputed from demo seeds in DuckDB, not on Snowflake).
 (One run on {run_date}. Not a client result, and one run says nothing about how often this happens.)
 So I'd check answers against known results before building cost attribution on top of them.
