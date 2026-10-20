@@ -31,7 +31,7 @@ That was one of {n_fail} failures in one run of {n} business questions on fictio
 (The {got_pct}% is from one Cortex Analyst run on {run_date}. The {true_2dp}% is recomputed from the demo seeds in DuckDB, not on Snowflake. Fictional data, not a client result, and one run says nothing about how often this happens.)
 Daan Bakboord's recap of Amir Peres's talk at the Snowflake User Group Netherlands, on what agents cost, has this line: \"A dashboard runs the same query every morning. An agent takes a different path every run.\"
 The recap says one prompt becomes spend in Cortex inference, Cortex Search, AI functions and the warehouses that run the SQL, and that Snowflake still has no single view of what that interaction cost.
-My test was Cortex Analyst, not an agent. The recap is about what a question costs. I only tested whether the answer was right, on a much smaller scale. A low cost per question does not tell you the answer was correct.
+My test was Cortex Analyst, not an agent, on a much smaller scale. The recap is about what a question costs. Cost and correctness are two separate questions, and I only tested the second.
 How do you check answers against known results today?
 #Snowflake #Cortex #DataQuality #AnalyticsEngineering
 Media: trustsprint-85-vs-8.png - Screenshot of the page title \"Cortex Analyst said {got_pct}%. The right answer was {true_pct}%.\"
