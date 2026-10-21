@@ -29,6 +29,10 @@ seeds/cortex_answers.csv  generated SQL, returned value, request id, run timesta
 - Every non-pass verdict carries a `failure_cause` derived from the generated SQL (`fct_failure_cause_summary`):
   **filter** 2 (Q04, Q05: both date columns filtered), **definition** 3 (Q06, Q08, Q09), join 0, model 0.
   Proof and chart: `proofs/2026-10-16-failure-cause/`.
+- The 85% is the frozen run of 2026-10-08, not a stable behaviour. A later re-run through the native Cortex Analyst
+  evaluations answered Q04 correctly (Cortex Analyst is non-deterministic; the cause of the difference is unverified).
+  Re-running Q04 yourself may therefore return the right number. The verdict logic does not depend on this: it grades
+  whatever answer is frozen in `seeds/cortex_answers.csv`.
 - A `fail` or `trust_warning` is a finding about the analyst, not a build error: `dbt build` stays green and the
   verdict column carries the bad news.
 
