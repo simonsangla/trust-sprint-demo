@@ -4,6 +4,8 @@
 
 A real Snowflake Cortex Analyst was asked the June conversion rate on a governed semantic view. Fictional data, one run, 8 Oct 2026.
 
+> **One run, not a stable behaviour.** The 85% is the frozen run of 8 Oct 2026. A later re-run through the native Cortex Analyst evaluations answered this question correctly. Cortex Analyst is non-deterministic and the cause of the difference is unverified, so re-asking it may return the right number. The verdicts below grade the frozen answer, not a re-run.
+
 ## The answer, for the June 2026 conversion rate
 
 | | Conversion rate |
