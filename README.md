@@ -72,3 +72,7 @@ anything (`sf.py` refuses such statements). `profiles.snowflake.example.yml` is 
 
 Reused from mission-os bricks: the `CREATE SEMANTIC VIEW IF NOT EXISTS` shape of `snowflake-cortex-semantic-view`, and the
 V1-V6 question-set rules of `snowflake-cortex-agent-eval` (`validate_question_pack.py` calls that brick unchanged).
+
+## License
+
+MIT, see `LICENSE`. All data in this demo is fictional.
